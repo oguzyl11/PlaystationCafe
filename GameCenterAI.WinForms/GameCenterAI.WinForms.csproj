@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E5F6A7B8-C9D0-4E5F-9A0B-4C5D6E7F8A9B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>GameCenterAI.WinForms</RootNamespace>
+    <AssemblyName>GameCenterAI.WinForms</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.Data.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.Data.Desktop.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.Utils.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.XtraBars.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.XtraEditors.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.XtraGrid.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Drawing.v25.2, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.Drawing.v25.2.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.v25.2.Core, Version=25.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Bin\Framework\DevExpress.Printing.v25.2.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <!-- DevExpress References - Update paths based on your DevExpress installation -->
+    <!-- These can be added via NuGet or DevExpress Installer -->
+    <!-- Required: DevExpress.Data, DevExpress.Utils, DevExpress.XtraBars, DevExpress.XtraEditors -->
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameCenterAI.Entity\GameCenterAI.Entity.csproj">
+      <Project>{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}</Project>
+      <Name>GameCenterAI.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameCenterAI.Interface\GameCenterAI.Interface.csproj">
+      <Project>{C3D4E5F6-A7B8-4C5D-9E0F-2A3B4C5D6E7F}</Project>
+      <Name>GameCenterAI.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameCenterAI.Service\GameCenterAI.Service.csproj">
+      <Project>{D4E5F6A7-B8C9-4D5E-9F0A-3B4C5D6E7F8A}</Project>
+      <Name>GameCenterAI.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="FrmGiris.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmGiris.Designer.cs">
+      <DependentUpon>FrmGiris.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmAnaMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAnaMenu.Designer.cs">
+      <DependentUpon>FrmAnaMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMasalar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMasalar.Designer.cs">
+      <DependentUpon>FrmMasalar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmUyeler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmUyeler.Designer.cs">
+      <DependentUpon>FrmUyeler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmUrunler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmUrunler.Designer.cs">
+      <DependentUpon>FrmUrunler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSiparisler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSiparisler.Designer.cs">
+      <DependentUpon>FrmSiparisler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmRaporlar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmRaporlar.Designer.cs">
+      <DependentUpon>FrmRaporlar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmAyarlar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAyarlar.Designer.cs">
+      <DependentUpon>FrmAyarlar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmUyeKayit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmUyeKayit.Designer.cs">
+      <DependentUpon>FrmUyeKayit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmUrunKayit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmUrunKayit.Designer.cs">
+      <DependentUpon>FrmUrunKayit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMasaKayit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMasaKayit.Designer.cs">
+      <DependentUpon>FrmMasaKayit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSiparisEkle.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSiparisEkle.Designer.cs">
+      <DependentUpon>FrmSiparisEkle.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmUyeSec.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmUyeSec.Designer.cs">
+      <DependentUpon>FrmUyeSec.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmYuzTanima.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmYuzTanima.Designer.cs">
+      <DependentUpon>FrmYuzTanima.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmTurnuva.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmTurnuva.Designer.cs">
+      <DependentUpon>FrmTurnuva.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmGiris.resx">
+      <DependentUpon>FrmGiris.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmAnaMenu.resx">
+      <DependentUpon>FrmAnaMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMasalar.resx">
+      <DependentUpon>FrmMasalar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmUyeler.resx">
+      <DependentUpon>FrmUyeler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmUrunler.resx">
+      <DependentUpon>FrmUrunler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmSiparisler.resx">
+      <DependentUpon>FrmSiparisler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmRaporlar.resx">
+      <DependentUpon>FrmRaporlar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmAyarlar.resx">
+      <DependentUpon>FrmAyarlar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmUyeKayit.resx">
+      <DependentUpon>FrmUyeKayit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmUrunKayit.resx">
+      <DependentUpon>FrmUrunKayit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMasaKayit.resx">
+      <DependentUpon>FrmMasaKayit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmSiparisEkle.resx">
+      <DependentUpon>FrmSiparisEkle.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmUyeSec.resx">
+      <DependentUpon>FrmUyeSec.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmYuzTanima.resx">
+      <DependentUpon>FrmYuzTanima.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmTurnuva.resx">
+      <DependentUpon>FrmTurnuva.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
