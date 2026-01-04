@@ -17,6 +17,7 @@ namespace GameCenterAI.Entity
         private decimal _pesinAlinan;
         private decimal _siparisToplami;
         private string _durum;
+        private int? _oyunID;
 
         /// <summary>
         /// Gets or sets the transaction ID.
@@ -106,6 +107,15 @@ namespace GameCenterAI.Entity
         {
             get { return _durum; }
             set { _durum = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the game ID being played during this transaction.
+        /// </summary>
+        public int? OyunID
+        {
+            get { return _oyunID; }
+            set { _oyunID = value; }
         }
     }
 }

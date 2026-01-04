@@ -110,6 +110,13 @@ BEGIN
         ALTER TABLE [dbo].[Hareketler] ADD CONSTRAINT FK_Hareketler_TarifeID FOREIGN KEY ([TarifeID]) REFERENCES [Tarifeler]([TarifeID]);
     END
     
+    -- OyunID kolonu ekle (AI için oyun takibi)
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Hareketler]') AND name = 'OyunID')
+    BEGIN
+        ALTER TABLE [dbo].[Hareketler] ADD [OyunID] [int] NULL;
+        ALTER TABLE [dbo].[Hareketler] ADD CONSTRAINT FK_Hareketler_OyunID FOREIGN KEY ([OyunID]) REFERENCES [Oyunlar]([OyunID]);
+    END
+    
     IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Hareketler]') AND name = 'PesinAlinan')
     BEGIN
         ALTER TABLE [dbo].[Hareketler] ADD [PesinAlinan] [decimal](18, 2) NOT NULL DEFAULT 0;

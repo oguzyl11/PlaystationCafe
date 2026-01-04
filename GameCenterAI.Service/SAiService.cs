@@ -420,6 +420,330 @@ namespace GameCenterAI.Service
         }
 
         /// <summary>
+        /// Predicts which game is being played on a table based on user history and patterns.
+        /// </summary>
+        /// <param name="uyeID">The user ID.</param>
+        /// <param name="masaID">The table ID.</param>
+        /// <returns>The predicted game ID, or null if cannot predict.</returns>
+        public int? OyunTahminEt(int uyeID, int masaID)
+        {
+            try
+            {
+                Tools.OpenConnection();
+                SqlCommand command = new SqlCommand();
+                command.Connection = Tools.Connection;
+                command.CommandType = CommandType.Text;
+                
+                // Kullanıcının geçmiş oyun tercihlerine bak
+                // En çok oynadığı oyunu tahmin et
+                command.CommandText = @"
+                    SELECT TOP 1 h.OyunID, COUNT(*) as OynamaSayisi
+                    FROM Hareketler h
+                    WHERE h.UyeID = @UyeID 
+                        AND h.OyunID IS NOT NULL
+                        AND h.Durum = 'Kapatıldı'
+                    GROUP BY h.OyunID
+                    ORDER BY COUNT(*) DESC";
+
+                command.Parameters.AddWithValue("@UyeID", uyeID);
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read() && reader["OyunID"] != DBNull.Value)
+                {
+                    int oyunID = Convert.ToInt32(reader["OyunID"]);
+                    reader.Close();
+                    return oyunID;
+                }
+                reader.Close();
+
+                // Eğer kullanıcı geçmişi yoksa, bu masada en çok oynanan oyunu tahmin et
+                command.Parameters.Clear();
+                command.CommandText = @"
+                    SELECT TOP 1 h.OyunID, COUNT(*) as OynamaSayisi
+                    FROM Hareketler h
+                    WHERE h.MasaID = @MasaID 
+                        AND h.OyunID IS NOT NULL
+                        AND h.Durum = 'Kapatıldı'
+                    GROUP BY h.OyunID
+                    ORDER BY COUNT(*) DESC";
+
+                command.Parameters.AddWithValue("@MasaID", masaID);
+
+                reader = command.ExecuteReader();
+                if (reader.Read() && reader["OyunID"] != DBNull.Value)
+                {
+                    int oyunID = Convert.ToInt32(reader["OyunID"]);
+                    reader.Close();
+                    return oyunID;
+                }
+                reader.Close();
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Oyun tahmin etme işlemi sırasında hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+        }
+
+        /// <summary>
+        /// Calculates dynamic pricing based on peak hours and demand.
+        /// </summary>
+        /// <param name="masaID">The table ID.</param>
+        /// <param name="saat">The current hour (0-23).</param>
+        /// <param name="gun">The day of week (0=Sunday, 6=Saturday).</param>
+        /// <returns>The calculated dynamic price multiplier (e.g., 1.2 for 20% increase).</returns>
+        public decimal DinamikFiyatHesapla(int masaID, int saat, int gun)
+        {
+            try
+            {
+                Tools.OpenConnection();
+                SqlCommand command = new SqlCommand();
+                command.Connection = Tools.Connection;
+                command.CommandType = CommandType.Text;
+
+                // Geçmiş verilerden yoğun saatleri analiz et
+                command.CommandText = @"
+                    SELECT 
+                        DATEPART(HOUR, Baslangic) as Saat,
+                        COUNT(*) as KullanimSayisi
+                    FROM Hareketler
+                    WHERE MasaID = @MasaID 
+                        AND Durum = 'Kapatıldı'
+                        AND Baslangic >= DATEADD(DAY, -30, GETDATE())
+                    GROUP BY DATEPART(HOUR, Baslangic)
+                    ORDER BY COUNT(*) DESC";
+
+                command.Parameters.AddWithValue("@MasaID", masaID);
+
+                SqlDataReader reader = command.ExecuteReader();
+                int maxKullanim = 0;
+                int enYogunSaat = -1;
+
+                while (reader.Read())
+                {
+                    int kullanimSayisi = Convert.ToInt32(reader["KullanimSayisi"]);
+                    if (kullanimSayisi > maxKullanim)
+                    {
+                        maxKullanim = kullanimSayisi;
+                        enYogunSaat = Convert.ToInt32(reader["Saat"]);
+                    }
+                }
+                reader.Close();
+
+                // Mevcut saatin yoğunluk oranını hesapla
+                command.Parameters.Clear();
+                command.CommandText = @"
+                    SELECT COUNT(*) as KullanimSayisi
+                    FROM Hareketler
+                    WHERE MasaID = @MasaID 
+                        AND DATEPART(HOUR, Baslangic) = @Saat
+                        AND DATEPART(WEEKDAY, Baslangic) = @Gun
+                        AND Durum = 'Kapatıldı'
+                        AND Baslangic >= DATEADD(DAY, -30, GETDATE())";
+
+                command.Parameters.AddWithValue("@MasaID", masaID);
+                command.Parameters.AddWithValue("@Saat", saat);
+                command.Parameters.AddWithValue("@Gun", gun + 1); // SQL Server'da WEEKDAY 1=Pazar
+
+                reader = command.ExecuteReader();
+                int mevcutKullanim = 0;
+                if (reader.Read())
+                {
+                    mevcutKullanim = Convert.ToInt32(reader["KullanimSayisi"]);
+                }
+                reader.Close();
+
+                // Dinamik fiyat çarpanı hesapla
+                decimal carpan = 1.0m; // Varsayılan çarpan
+
+                // Yoğun saatlerde (14:00-18:00 arası) %20 artış
+                if (saat >= 14 && saat <= 18)
+                {
+                    carpan = 1.2m;
+                }
+                // Hafta sonu (Cumartesi, Pazar) %15 artış
+                else if (gun == 0 || gun == 6)
+                {
+                    carpan = 1.15m;
+                }
+                // Mevcut saat yoğunsa ekstra %10
+                if (mevcutKullanim > maxKullanim * 0.7)
+                {
+                    carpan += 0.1m;
+                }
+
+                return carpan;
+            }
+            catch (Exception)
+            {
+                // Hata durumunda varsayılan çarpan döndür
+                return 1.0m;
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+        }
+
+        /// <summary>
+        /// Suggests optimal tournament scheduling based on historical data.
+        /// </summary>
+        /// <returns>A message suggesting the best time for tournaments.</returns>
+        public string TurnuvaZamanlamasiOner()
+        {
+            try
+            {
+                Tools.OpenConnection();
+                SqlCommand command = new SqlCommand();
+                command.Connection = Tools.Connection;
+                command.CommandType = CommandType.Text;
+
+                // Geçmiş verilerden yoğun saatleri bul
+                command.CommandText = @"
+                    SELECT 
+                        DATEPART(HOUR, Baslangic) as Saat,
+                        DATEPART(WEEKDAY, Baslangic) as Gun,
+                        COUNT(*) as KullanimSayisi
+                    FROM Hareketler
+                    WHERE Durum = 'Kapatıldı'
+                        AND Baslangic >= DATEADD(DAY, -30, GETDATE())
+                    GROUP BY DATEPART(HOUR, Baslangic), DATEPART(WEEKDAY, Baslangic)
+                    ORDER BY COUNT(*) DESC";
+
+                SqlDataReader reader = command.ExecuteReader();
+                Dictionary<int, int> saatYogunluk = new Dictionary<int, int>();
+                int enYogunSaat = -1;
+                int enYogunGun = -1;
+                int maxKullanim = 0;
+
+                while (reader.Read())
+                {
+                    int saat = Convert.ToInt32(reader["Saat"]);
+                    int gun = Convert.ToInt32(reader["Gun"]);
+                    int kullanim = Convert.ToInt32(reader["KullanimSayisi"]);
+
+                    if (kullanim > maxKullanim)
+                    {
+                        maxKullanim = kullanim;
+                        enYogunSaat = saat;
+                        enYogunGun = gun;
+                    }
+                }
+                reader.Close();
+
+                // Yoğun saatlerden kaçınarak turnuva zamanlaması öner
+                string[] gunler = { "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi" };
+                
+                if (enYogunSaat >= 14 && enYogunSaat <= 18)
+                {
+                    // Yoğun saatler 14:00-18:00 arası, turnuvayı sabah 10:00'a koy
+                    return $"Geçmiş verilere göre Cumartesi saat {enYogunSaat}:00 ile 18:00 arası çok yoğun. Turnuvayı Pazar sabah 10:00'a koymanızı öneririz.";
+                }
+                else
+                {
+                    return $"Geçmiş verilere göre en yoğun saat {enYogunSaat}:00. Turnuvayı bu saatlerden kaçınarak planlamanızı öneririz.";
+                }
+            }
+            catch (Exception)
+            {
+                return "Veri analizi yapılamadı. Varsayılan olarak hafta sonu sabah saatlerini öneririz.";
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+        }
+
+        /// <summary>
+        /// Gets upsell product recommendations for a user based on their past behavior.
+        /// </summary>
+        /// <param name="uyeID">The user ID.</param>
+        /// <param name="oyunID">The game ID being played (optional).</param>
+        /// <returns>A dictionary of recommended products with personalized messages.</returns>
+        public Dictionary<Urunler, string> UpsellOneriGetir(int uyeID, int? oyunID = null)
+        {
+            Dictionary<Urunler, string> oneriler = new Dictionary<Urunler, string>();
+
+            try
+            {
+                Tools.OpenConnection();
+                SqlCommand command = new SqlCommand();
+                command.Connection = Tools.Connection;
+                command.CommandType = CommandType.Text;
+
+                // Kullanıcının geçmiş siparişlerini analiz et
+                command.CommandText = @"
+                    SELECT TOP 5 
+                        sd.UrunID,
+                        u.UrunAdi,
+                        u.Kategori,
+                        u.Fiyat,
+                        COUNT(*) as SiparisSayisi,
+                        o.OyunAdi
+                    FROM SiparisDetaylar sd
+                    INNER JOIN Urunler u ON sd.UrunID = u.UrunID
+                    INNER JOIN Siparisler s ON sd.SiparisID = s.SiparisID
+                    INNER JOIN Hareketler h ON s.HareketID = h.HareketID
+                    LEFT JOIN Oyunlar o ON h.OyunID = o.OyunID
+                    WHERE h.UyeID = @UyeID";
+
+                if (oyunID.HasValue)
+                {
+                    command.CommandText += " AND h.OyunID = @OyunID";
+                    command.Parameters.AddWithValue("@OyunID", oyunID.Value);
+                }
+
+                command.CommandText += @"
+                    GROUP BY sd.UrunID, u.UrunAdi, u.Kategori, u.Fiyat, o.OyunAdi
+                    ORDER BY COUNT(*) DESC";
+
+                command.Parameters.AddWithValue("@UyeID", uyeID);
+
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Urunler urun = new Urunler
+                    {
+                        UrunID = Convert.ToInt32(reader["UrunID"]),
+                        UrunAdi = reader["UrunAdi"].ToString(),
+                        Kategori = reader["Kategori"] != DBNull.Value ? reader["Kategori"].ToString() : string.Empty,
+                        Fiyat = Convert.ToDecimal(reader["Fiyat"])
+                    };
+
+                    string oyunAdi = reader["OyunAdi"] != DBNull.Value ? reader["OyunAdi"].ToString() : "";
+                    string mesaj = "";
+
+                    if (!string.IsNullOrEmpty(oyunAdi))
+                    {
+                        mesaj = $"Sen genelde {oyunAdi} oynarken {urun.UrunAdi} içiyorsun, sipariş edeyim mi?";
+                    }
+                    else
+                    {
+                        mesaj = $"Geçmişte {urun.UrunAdi} sipariş etmiştin, tekrar ister misin?";
+                    }
+
+                    oneriler.Add(urun, mesaj);
+                }
+                reader.Close();
+            }
+            catch (Exception)
+            {
+                // Hata durumunda boş liste döndür
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return oneriler;
+        }
+
+        /// <summary>
         /// Releases camera resources.
         /// </summary>
         public void Dispose()

@@ -55,11 +55,19 @@ namespace GameCenterAI.WinForms
             // 
             // _btnTurnuvayiBaslat
             // 
+            this._btnTurnuvayiBaslat.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this._btnTurnuvayiBaslat.Appearance.BackColor = System.Drawing.Color.FromArgb(0, 102, 204);
+            this._btnTurnuvayiBaslat.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnTurnuvayiBaslat.Appearance.Options.UseFont = true;
+            this._btnTurnuvayiBaslat.Appearance.Options.UseBackColor = true;
+            this._btnTurnuvayiBaslat.Appearance.Options.UseForeColor = true;
+            this._btnTurnuvayiBaslat.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(0, 82, 184);
+            this._btnTurnuvayiBaslat.AppearanceHovered.Options.UseBackColor = true;
             this._btnTurnuvayiBaslat.Location = new System.Drawing.Point(650, 10);
             this._btnTurnuvayiBaslat.Name = "_btnTurnuvayiBaslat";
-            this._btnTurnuvayiBaslat.Size = new System.Drawing.Size(200, 35);
+            this._btnTurnuvayiBaslat.Size = new System.Drawing.Size(200, 40);
             this._btnTurnuvayiBaslat.TabIndex = 1;
-            this._btnTurnuvayiBaslat.Text = "Turnuvayı Başlat";
+            this._btnTurnuvayiBaslat.Text = "🚀 Turnuvayı Başlat";
             this._btnTurnuvayiBaslat.Click += new System.EventHandler(this.BtnTurnuvayiBaslat_Click);
             // 
             // _gridControlTurnuvalar
@@ -100,29 +108,53 @@ namespace GameCenterAI.WinForms
             // 
             // _btnSil
             // 
+            this._btnSil.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnSil.Appearance.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+            this._btnSil.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnSil.Appearance.Options.UseFont = true;
+            this._btnSil.Appearance.Options.UseBackColor = true;
+            this._btnSil.Appearance.Options.UseForeColor = true;
+            this._btnSil.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(200, 35, 51);
+            this._btnSil.AppearanceHovered.Options.UseBackColor = true;
             this._btnSil.Location = new System.Drawing.Point(240, 10);
             this._btnSil.Name = "_btnSil";
-            this._btnSil.Size = new System.Drawing.Size(100, 35);
+            this._btnSil.Size = new System.Drawing.Size(100, 40);
             this._btnSil.TabIndex = 7;
-            this._btnSil.Text = "Sil";
+            this._btnSil.Text = "🗑️ Sil";
             this._btnSil.Click += new System.EventHandler(this.BtnSil_Click);
             // 
             // _btnYenile
             // 
+            this._btnYenile.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnYenile.Appearance.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this._btnYenile.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnYenile.Appearance.Options.UseFont = true;
+            this._btnYenile.Appearance.Options.UseBackColor = true;
+            this._btnYenile.Appearance.Options.UseForeColor = true;
+            this._btnYenile.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(90, 99, 107);
+            this._btnYenile.AppearanceHovered.Options.UseBackColor = true;
             this._btnYenile.Location = new System.Drawing.Point(350, 10);
             this._btnYenile.Name = "_btnYenile";
-            this._btnYenile.Size = new System.Drawing.Size(100, 35);
+            this._btnYenile.Size = new System.Drawing.Size(100, 40);
             this._btnYenile.TabIndex = 8;
-            this._btnYenile.Text = "Yenile";
+            this._btnYenile.Text = "🔄 Yenile";
             this._btnYenile.Click += new System.EventHandler(this.BtnYenile_Click);
             // 
             // _btnSonrakiTur
             // 
+            this._btnSonrakiTur.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this._btnSonrakiTur.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this._btnSonrakiTur.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnSonrakiTur.Appearance.Options.UseFont = true;
+            this._btnSonrakiTur.Appearance.Options.UseBackColor = true;
+            this._btnSonrakiTur.Appearance.Options.UseForeColor = true;
+            this._btnSonrakiTur.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(30, 150, 60);
+            this._btnSonrakiTur.AppearanceHovered.Options.UseBackColor = true;
             this._btnSonrakiTur.Location = new System.Drawing.Point(860, 10);
             this._btnSonrakiTur.Name = "_btnSonrakiTur";
-            this._btnSonrakiTur.Size = new System.Drawing.Size(120, 35);
+            this._btnSonrakiTur.Size = new System.Drawing.Size(140, 40);
             this._btnSonrakiTur.TabIndex = 9;
-            this._btnSonrakiTur.Text = "Sonraki Tura Geç";
+            this._btnSonrakiTur.Text = "➡️ Sonraki Tura Geç";
             this._btnSonrakiTur.Click += new System.EventHandler(this.BtnSonrakiTur_Click);
             // 
             // _cmbTurnuvalar

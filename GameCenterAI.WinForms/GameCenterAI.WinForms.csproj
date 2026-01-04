@@ -93,6 +93,10 @@
       <Project>{D4E5F6A7-B8C9-4D5E-9F0A-3B4C5D6E7F8A}</Project>
       <Name>GameCenterAI.Service</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GameCenterAI.DataAccess\GameCenterAI.DataAccess.csproj">
+      <Project>{B2C3D4E5-F6A7-4B5C-9D0E-1F2A3B4C5D6E}</Project>
+      <Name>GameCenterAI.DataAccess</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

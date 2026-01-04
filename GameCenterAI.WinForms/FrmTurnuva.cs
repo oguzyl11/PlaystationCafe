@@ -199,11 +199,13 @@ namespace GameCenterAI.WinForms
                 if (ceyrekFinal.Count > 0)
                 {
                     LabelControl lblTur = new LabelControl();
-                    lblTur.Text = "ÇEYREK FİNAL";
+                    lblTur.Text = "🏆 ÇEYREK FİNAL";
                     lblTur.Location = new Point(20, yPosition);
-                    lblTur.Size = new Size(200, 25);
-                    lblTur.Appearance.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-                    lblTur.Appearance.ForeColor = Color.Blue;
+                    lblTur.Size = new Size(300, 30);
+                    lblTur.Appearance.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+                    lblTur.Appearance.ForeColor = Color.FromArgb(0, 102, 204);
+                    lblTur.Appearance.Options.UseFont = true;
+                    lblTur.Appearance.Options.UseForeColor = true;
                     _scrollableControl.Controls.Add(lblTur);
                     yPosition += 30;
 
@@ -219,11 +221,13 @@ namespace GameCenterAI.WinForms
                 if (yariFinal.Count > 0)
                 {
                     LabelControl lblTur = new LabelControl();
-                    lblTur.Text = "YARI FİNAL";
+                    lblTur.Text = "🥈 YARI FİNAL";
                     lblTur.Location = new Point(20, yPosition);
-                    lblTur.Size = new Size(200, 25);
-                    lblTur.Appearance.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-                    lblTur.Appearance.ForeColor = Color.Orange;
+                    lblTur.Size = new Size(300, 30);
+                    lblTur.Appearance.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+                    lblTur.Appearance.ForeColor = Color.FromArgb(255, 193, 7);
+                    lblTur.Appearance.Options.UseFont = true;
+                    lblTur.Appearance.Options.UseForeColor = true;
                     _scrollableControl.Controls.Add(lblTur);
                     yPosition += 30;
 
@@ -239,11 +243,13 @@ namespace GameCenterAI.WinForms
                 if (final.Count > 0)
                 {
                     LabelControl lblTur = new LabelControl();
-                    lblTur.Text = "FİNAL";
+                    lblTur.Text = "🏆 FİNAL 🏆";
                     lblTur.Location = new Point(20, yPosition);
-                    lblTur.Size = new Size(200, 25);
-                    lblTur.Appearance.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-                    lblTur.Appearance.ForeColor = Color.Red;
+                    lblTur.Size = new Size(300, 35);
+                    lblTur.Appearance.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+                    lblTur.Appearance.ForeColor = Color.FromArgb(220, 53, 69);
+                    lblTur.Appearance.Options.UseFont = true;
+                    lblTur.Appearance.Options.UseForeColor = true;
                     _scrollableControl.Controls.Add(lblTur);
                     yPosition += 30;
 
@@ -271,11 +277,24 @@ namespace GameCenterAI.WinForms
             string uye1Adi = uye1 != null ? uye1.AdSoyad : $"Üye ID: {mac.Uye1ID}";
             string uye2Adi = uye2 != null ? uye2.AdSoyad : $"Üye ID: {mac.Uye2ID}";
 
-            // Create GroupControl for match
+            // Create GroupControl for match - Modern design
             GroupControl matchGroup = new GroupControl();
-            matchGroup.Text = $"{mac.Tur} - Maç {mac.MacNo}";
+            matchGroup.Text = $"🎮 {mac.Tur} - Maç {mac.MacNo}";
             matchGroup.Location = new Point(20, yPosition);
             matchGroup.Size = new Size(matchWidth, matchHeight);
+            matchGroup.AppearanceCaption.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            matchGroup.AppearanceCaption.ForeColor = Color.FromArgb(0, 102, 204);
+            matchGroup.AppearanceCaption.Options.UseFont = true;
+            matchGroup.AppearanceCaption.Options.UseForeColor = true;
+            if (mac.Durum == "Sonuçlandı")
+            {
+                matchGroup.Appearance.BackColor = Color.FromArgb(240, 255, 240);
+            }
+            else
+            {
+                matchGroup.Appearance.BackColor = Color.FromArgb(255, 255, 240);
+            }
+            matchGroup.Appearance.Options.UseBackColor = true;
 
             // Player 1
             LabelControl lblUye1 = new LabelControl();
@@ -288,47 +307,72 @@ namespace GameCenterAI.WinForms
             LabelControl lblSkor1 = new LabelControl();
             lblSkor1.Text = mac.Skor1.HasValue ? mac.Skor1.Value.ToString() : "-";
             lblSkor1.Location = new Point(170, 30);
-            lblSkor1.Size = new Size(30, 20);
-            lblSkor1.Appearance.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblSkor1.Appearance.ForeColor = mac.Skor1.HasValue ? Color.Blue : Color.Gray;
+            lblSkor1.Size = new Size(40, 20);
+            lblSkor1.Appearance.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblSkor1.Appearance.ForeColor = mac.Skor1.HasValue ? Color.FromArgb(0, 102, 204) : Color.Gray;
+            lblSkor1.Appearance.Options.UseForeColor = true;
 
             // VS or Result
             LabelControl lblVS = new LabelControl();
             if (mac.Durum == "Sonuçlandı" && mac.KazananID.HasValue)
             {
                 lblVS.Text = mac.KazananID == mac.Uye1ID ? "✓ KAZANDI" : "✓ KAZANDI";
-                lblVS.Appearance.ForeColor = Color.Green;
+                lblVS.Appearance.ForeColor = Color.FromArgb(40, 167, 69);
+                lblVS.Appearance.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             }
             else
             {
-                lblVS.Text = "VS";
-                lblVS.Appearance.ForeColor = Color.Red;
+                lblVS.Text = "⚔ VS ⚔";
+                lblVS.Appearance.ForeColor = Color.FromArgb(220, 53, 69);
+                lblVS.Appearance.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             }
             lblVS.Location = new Point(10, 55);
             lblVS.Size = new Size(200, 20);
-            lblVS.Appearance.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblVS.Appearance.Options.UseForeColor = true;
+            lblVS.Appearance.Options.UseFont = true;
+            lblVS.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            lblVS.Appearance.Options.UseTextOptions = true;
 
             // Player 2
             LabelControl lblUye2 = new LabelControl();
             lblUye2.Text = uye2Adi;
             lblUye2.Location = new Point(10, 75);
             lblUye2.Size = new Size(150, 20);
-            lblUye2.Appearance.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblUye2.Appearance.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblUye2.Appearance.ForeColor = Color.FromArgb(0, 102, 204);
+            lblUye2.Appearance.Options.UseForeColor = true;
 
             // Player 2 Score
             LabelControl lblSkor2 = new LabelControl();
             lblSkor2.Text = mac.Skor2.HasValue ? mac.Skor2.Value.ToString() : "-";
             lblSkor2.Location = new Point(170, 75);
-            lblSkor2.Size = new Size(30, 20);
-            lblSkor2.Appearance.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblSkor2.Appearance.ForeColor = mac.Skor2.HasValue ? Color.Blue : Color.Gray;
+            lblSkor2.Size = new Size(40, 20);
+            lblSkor2.Appearance.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblSkor2.Appearance.ForeColor = mac.Skor2.HasValue ? Color.FromArgb(0, 102, 204) : Color.Gray;
+            lblSkor2.Appearance.Options.UseForeColor = true;
 
-            // Result button
+            // Result button - Modern design
             SimpleButton btnSonuc = new SimpleButton();
-            btnSonuc.Text = mac.Durum == "Sonuçlandı" ? "Sonucu Düzenle" : "Sonuçlandır";
+            btnSonuc.Text = mac.Durum == "Sonuçlandı" ? "✏️ Düzenle" : "✅ Sonuçlandır";
             btnSonuc.Location = new Point(210, 30);
-            btnSonuc.Size = new Size(60, 65);
+            btnSonuc.Size = new Size(70, 70);
             btnSonuc.Tag = mac.MacID;
+            btnSonuc.Appearance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnSonuc.Appearance.Options.UseFont = true;
+            if (mac.Durum == "Sonuçlandı")
+            {
+                btnSonuc.Appearance.BackColor = Color.FromArgb(255, 193, 7);
+                btnSonuc.Appearance.ForeColor = Color.White;
+            }
+            else
+            {
+                btnSonuc.Appearance.BackColor = Color.FromArgb(40, 167, 69);
+                btnSonuc.Appearance.ForeColor = Color.White;
+            }
+            btnSonuc.Appearance.Options.UseBackColor = true;
+            btnSonuc.Appearance.Options.UseForeColor = true;
+            btnSonuc.AppearanceHovered.BackColor = Color.FromArgb(30, 150, 60);
+            btnSonuc.AppearanceHovered.Options.UseBackColor = true;
             btnSonuc.Click += BtnMacSonucu_Click;
 
             matchGroup.Controls.Add(lblUye1);
@@ -362,6 +406,13 @@ namespace GameCenterAI.WinForms
                         if (frmMacSonucu.ShowDialog() == DialogResult.OK)
                         {
                             BracketGoster();
+                            
+                            // Final maçı sonuçlandırıldıysa turnuvayı tamamla
+                            var guncellenenMac = _turnuvaService.MacGetir(mac.MacID);
+                            if (guncellenenMac != null && guncellenenMac.Tur == "Final" && guncellenenMac.Durum == "Sonuçlandı" && guncellenenMac.KazananID.HasValue)
+                            {
+                                FinalTamamlandiKontrol();
+                            }
                         }
                     }
                 }
@@ -584,6 +635,51 @@ namespace GameCenterAI.WinForms
             catch (Exception ex)
             {
                 XtraMessageBox.Show($"Hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the final match is completed and finalizes the tournament.
+        /// </summary>
+        private void FinalTamamlandiKontrol()
+        {
+            try
+            {
+                var finalMaclari = _turnuvaService.MaclariGetirByTur(_seciliTurnuvaID, "Final");
+                if (finalMaclari.Count > 0)
+                {
+                    var finalMac = finalMaclari[0];
+                    if (finalMac.Durum == "Sonuçlandı" && finalMac.KazananID.HasValue)
+                    {
+                        // Turnuvayı tamamla
+                        int? kazananID = _turnuvaService.TurnuvayiTamamla(_seciliTurnuvaID);
+                        
+                        if (kazananID.HasValue)
+                        {
+                            SUyeler uyeService = new SUyeler();
+                            Uyeler kazanan = uyeService.Getir(kazananID.Value);
+                            Turnuvalar turnuva = _turnuvaService.Getir(_seciliTurnuvaID);
+                            
+                            string mesaj = $"🏆 TEBRİKLER! 🏆\n\n";
+                            mesaj += $"Turnuva: {turnuva.TurnuvaAdi}\n";
+                            mesaj += $"Kazanan: {kazanan?.AdSoyad ?? $"Üye ID: {kazananID.Value}"}\n";
+                            if (turnuva.Odul > 0)
+                            {
+                                mesaj += $"Ödül: {turnuva.Odul:N2} TL hesabınıza eklendi!\n";
+                            }
+                            mesaj += $"\nTurnuva başarıyla tamamlandı!";
+                            
+                            XtraMessageBox.Show(mesaj, "🎉 Turnuva Tamamlandı!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            
+                            // Bracket'i yeniden göster
+                            BracketGoster();
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Hata durumunda sessizce devam et
             }
         }
     }

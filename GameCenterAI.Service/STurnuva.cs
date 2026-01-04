@@ -630,7 +630,8 @@ namespace GameCenterAI.Service
                 }
                 else if (tur.Contains("Final"))
                 {
-                    throw new Exception("Turnuva zaten tamamlandı. Final maçı oynandı.");
+                    // Final tamamlandı, turnuvayı bitir
+                    throw new Exception("Final maçı tamamlandı. Turnuvayı tamamlamak için 'Turnuvayı Tamamla' butonunu kullanın.");
                 }
                 else
                 {
@@ -668,6 +669,82 @@ namespace GameCenterAI.Service
             catch (Exception ex)
             {
                 throw new Exception("Sonraki tura geçiş işlemi sırasında hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+        }
+
+        /// <summary>
+        /// Finalizes the tournament when the final match is completed.
+        /// Updates tournament status to "Tamamlandı" and awards prize to winner.
+        /// </summary>
+        /// <param name="turnuvaID">The tournament ID.</param>
+        /// <returns>The winner's user ID, or null if tournament is not completed.</returns>
+        public int? TurnuvayiTamamla(int turnuvaID)
+        {
+            try
+            {
+                Tools.OpenConnection();
+
+                // Final maçını kontrol et
+                SqlCommand command = new SqlCommand();
+                command.Connection = Tools.Connection;
+                command.CommandType = CommandType.Text;
+                command.CommandText = @"
+                    SELECT TOP 1 MacID, Uye1ID, Uye2ID, Skor1, Skor2, Durum, KazananID
+                    FROM TurnuvaMaclari
+                    WHERE TurnuvaID = @TurnuvaID AND Tur = 'Final'
+                    ORDER BY MacNo";
+
+                command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+
+                SqlDataReader reader = command.ExecuteReader();
+                if (!reader.Read())
+                {
+                    reader.Close();
+                    throw new Exception("Final maçı bulunamadı.");
+                }
+
+                string durum = reader["Durum"].ToString();
+                int? kazananID = reader["KazananID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["KazananID"]) : null;
+
+                reader.Close();
+
+                if (durum != "Sonuçlandı" || !kazananID.HasValue)
+                {
+                    throw new Exception("Final maçı henüz sonuçlandırılmamış.");
+                }
+
+                // Turnuva bilgilerini al
+                Turnuvalar turnuva = Getir(turnuvaID);
+                if (turnuva == null)
+                {
+                    throw new Exception("Turnuva bulunamadı.");
+                }
+
+                // Turnuva durumunu "Tamamlandı" olarak güncelle
+                command.Parameters.Clear();
+                command.CommandText = "UPDATE Turnuvalar SET Durum = 'Tamamlandı' WHERE TurnuvaID = @TurnuvaID";
+                command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                command.ExecuteNonQuery();
+
+                // Kazanan üyeye ödül ekle
+                if (turnuva.Odul > 0)
+                {
+                    command.Parameters.Clear();
+                    command.CommandText = "UPDATE Uyeler SET Bakiye = Bakiye + @Odul WHERE UyeID = @UyeID";
+                    command.Parameters.AddWithValue("@Odul", turnuva.Odul);
+                    command.Parameters.AddWithValue("@UyeID", kazananID.Value);
+                    command.ExecuteNonQuery();
+                }
+
+                return kazananID.Value;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Turnuva tamamlama işlemi sırasında hata oluştu: " + ex.Message);
             }
             finally
             {

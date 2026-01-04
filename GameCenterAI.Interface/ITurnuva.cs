@@ -95,5 +95,13 @@ namespace GameCenterAI.Interface
         /// <param name="tur">The current round name.</param>
         /// <returns>True if the operation is successful, false otherwise.</returns>
         bool SonrakiTuraGec(int turnuvaID, string tur);
+
+        /// <summary>
+        /// Finalizes the tournament when the final match is completed.
+        /// Updates tournament status to "Tamamlandı" and awards prize to winner.
+        /// </summary>
+        /// <param name="turnuvaID">The tournament ID.</param>
+        /// <returns>The winner's user ID, or null if tournament is not completed.</returns>
+        int? TurnuvayiTamamla(int turnuvaID);
     }
 }

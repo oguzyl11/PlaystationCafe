@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraBars;
 using DevExpress.XtraBars.Ribbon;
@@ -32,8 +33,24 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void FrmAnaMenu_Load(object sender, EventArgs e)
         {
-            // Ana sayfada masaları göster - tek pencere olarak
-            MasalariGoster();
+            // Shown event'ini bir kere bağla
+            this.Shown += FrmAnaMenu_Shown;
+        }
+
+        /// <summary>
+        /// Handles the form shown event - loads Masalar after form is fully displayed.
+        /// </summary>
+        private void FrmAnaMenu_Shown(object sender, EventArgs e)
+        {
+            try
+            {
+                // Ana sayfada masaları göster - tek pencere olarak
+                MasalariGoster();
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Masalar yüklenirken hata oluştu: {ex.Message}\n\nDetay: {ex.StackTrace}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -41,21 +58,65 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void MasalariGoster()
         {
-            // Tüm içeriği temizle
-            _contentPanel.Controls.Clear();
-            
-            if (_frmMasalar == null || _frmMasalar.IsDisposed)
+            try
             {
-                _frmMasalar = new FrmMasalar();
+                // Panel'in hazır olduğundan emin ol
+                if (_contentPanel == null || !_contentPanel.IsHandleCreated)
+                {
+                    System.Threading.Thread.Sleep(100); // Kısa bir bekleme
+                }
+
+                // Dispose existing forms first (frmMasalar hariç)
+                var formsToDispose = _contentPanel.Controls.OfType<Form>().Where(f => f != _frmMasalar).ToList();
+                foreach (var form in formsToDispose)
+                {
+                    form.Hide();
+                    form.Dispose();
+                }
+
+                // Tüm içeriği temizle (frmMasalar hariç)
+                var formsToRemove = _contentPanel.Controls.OfType<Form>().Where(f => f != _frmMasalar).ToList();
+                foreach (var form in formsToRemove)
+                {
+                    _contentPanel.Controls.Remove(form);
+                }
+                
+                Application.DoEvents(); // UI'ı güncelle
+                
+                // Eğer frmMasalar zaten panel içindeyse, sadece öne getir
+                if (_frmMasalar != null && !_frmMasalar.IsDisposed && _contentPanel.Controls.Contains(_frmMasalar))
+                {
+                    _frmMasalar.BringToFront();
+                    _contentPanel.Invalidate();
+                    _contentPanel.Update();
+                    return;
+                }
+                
+                // Yeni form oluştur
+                if (_frmMasalar == null || _frmMasalar.IsDisposed)
+                {
+                    _frmMasalar = new FrmMasalar();
+                }
+                
+                _frmMasalar.TopLevel = false;
+                _frmMasalar.FormBorderStyle = FormBorderStyle.None;
+                _frmMasalar.Dock = DockStyle.Fill;
+                _frmMasalar.Visible = true;
+                
+                _contentPanel.Controls.Add(_frmMasalar);
+                _frmMasalar.BringToFront();
+                
+                // Force refresh and update
+                _contentPanel.Invalidate();
+                _contentPanel.Update();
+                _frmMasalar.Invalidate();
+                _frmMasalar.Update();
+                Application.DoEvents();
             }
-            
-            _frmMasalar.TopLevel = false;
-            _frmMasalar.FormBorderStyle = FormBorderStyle.None;
-            _frmMasalar.Dock = DockStyle.Fill;
-            _frmMasalar.Visible = true;
-            
-            _contentPanel.Controls.Add(_frmMasalar);
-            _frmMasalar.BringToFront();
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Masalar formu yüklenirken hata oluştu: {ex.Message}\n\nDetay: {ex.StackTrace}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -71,8 +132,7 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemCariUye_Click(object sender, ItemClickEventArgs e)
         {
-            FrmUyeler frmUyeler = new FrmUyeler();
-            frmUyeler.Show();
+            ShowFormInPanel<FrmUyeler>();
         }
 
         /// <summary>
@@ -80,8 +140,7 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemStok_Click(object sender, ItemClickEventArgs e)
         {
-            FrmUrunler frmUrunler = new FrmUrunler();
-            frmUrunler.Show();
+            ShowFormInPanel<FrmUrunler>();
         }
 
         /// <summary>
@@ -89,8 +148,7 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemMuhasebe_Click(object sender, ItemClickEventArgs e)
         {
-            FrmRaporlar frmRaporlar = new FrmRaporlar();
-            frmRaporlar.Show();
+            ShowFormInPanel<FrmRaporlar>();
         }
 
         /// <summary>
@@ -114,9 +172,16 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemSMS_Click(object sender, ItemClickEventArgs e)
         {
-            FrmUyeler frmUyeler = new FrmUyeler();
-            frmUyeler.Text = "SMS Gönderimi - Üye Listesi";
-            frmUyeler.Show();
+            ShowFormInPanel<FrmUyeler>();
+            // Set title if needed
+            foreach (Control ctrl in _contentPanel.Controls)
+            {
+                if (ctrl is FrmUyeler)
+                {
+                    ((FrmUyeler)ctrl).Text = "SMS Gönderimi - Üye Listesi";
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -124,8 +189,9 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemAyarlar_Click(object sender, ItemClickEventArgs e)
         {
-            FrmAyarlar frmAyarlar = new FrmAyarlar();
-            frmAyarlar.ShowDialog();
+            // Ayarlar modal olarak kalabilir veya panel içinde açılabilir
+            // Kullanıcı tercihine göre panel içinde açıyoruz
+            ShowFormInPanel<FrmAyarlar>();
         }
 
         /// <summary>
@@ -133,9 +199,16 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemYetkili_Click(object sender, ItemClickEventArgs e)
         {
-            FrmUyeler frmUyeler = new FrmUyeler();
-            frmUyeler.Text = "Yetkili Yönetimi - Üye Listesi";
-            frmUyeler.Show();
+            ShowFormInPanel<FrmUyeler>();
+            // Set title if needed
+            foreach (Control ctrl in _contentPanel.Controls)
+            {
+                if (ctrl is FrmUyeler)
+                {
+                    ((FrmUyeler)ctrl).Text = "Yetkili Yönetimi - Üye Listesi";
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -143,8 +216,7 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemAraclar_Click(object sender, ItemClickEventArgs e)
         {
-            FrmRaporlar frmRaporlar = new FrmRaporlar();
-            frmRaporlar.Show();
+            ShowFormInPanel<FrmRaporlar>();
         }
 
         /// <summary>
@@ -177,27 +249,47 @@ namespace GameCenterAI.WinForms
         /// <typeparam name="T">The form type to show.</typeparam>
         private void ShowFormInPanel<T>() where T : Form, new()
         {
-            // Clear existing controls
-            _contentPanel.Controls.Clear();
-
-            // Dispose existing form if any
-            foreach (Control control in _contentPanel.Controls)
+            try
             {
-                if (control is Form)
+                // Panel'in hazır olduğundan emin ol
+                if (_contentPanel == null || !_contentPanel.IsHandleCreated)
                 {
-                    ((Form)control).Dispose();
+                    System.Threading.Thread.Sleep(100); // Kısa bir bekleme
                 }
+
+                // Dispose existing forms first
+                var formsToDispose = _contentPanel.Controls.OfType<Form>().ToList();
+                foreach (var existingForm in formsToDispose)
+                {
+                    existingForm.Hide();
+                    existingForm.Dispose();
+                }
+
+                // Clear existing controls
+                _contentPanel.Controls.Clear();
+                Application.DoEvents(); // UI'ı güncelle
+
+                // Create and show new form
+                T form = new T();
+                form.TopLevel = false;
+                form.FormBorderStyle = FormBorderStyle.None;
+                form.Dock = DockStyle.Fill;
+                form.Visible = true;
+
+                _contentPanel.Controls.Add(form);
+                form.BringToFront();
+                
+                // Force refresh and update
+                _contentPanel.Invalidate();
+                _contentPanel.Update();
+                form.Invalidate();
+                form.Update();
+                Application.DoEvents();
             }
-
-            // Create and show new form
-            T form = new T();
-            form.TopLevel = false;
-            form.FormBorderStyle = FormBorderStyle.None;
-            form.Dock = DockStyle.Fill;
-            form.Visible = true;
-
-            _contentPanel.Controls.Add(form);
-            form.BringToFront();
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Form yüklenirken hata oluştu: {ex.Message}\n\nDetay: {ex.StackTrace}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -205,8 +297,8 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemYuzTanima_Click(object sender, ItemClickEventArgs e)
         {
-            FrmYuzTanima frmYuzTanima = new FrmYuzTanima();
-            frmYuzTanima.ShowDialog();
+            // Yüz tanıma da panel içinde açılsın (tek pencere mantığı)
+            ShowFormInPanel<FrmYuzTanima>();
         }
 
         /// <summary>

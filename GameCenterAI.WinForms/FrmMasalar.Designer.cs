@@ -48,6 +48,7 @@ namespace GameCenterAI.WinForms
             this._txtBaslamaSaati = new DevExpress.XtraEditors.TextEdit();
             this._txtMusteri = new DevExpress.XtraEditors.TextEdit();
             this._lblMasaAdi = new DevExpress.XtraEditors.LabelControl();
+            this._lblOyun = new DevExpress.XtraEditors.LabelControl();
             this._cmbTarifeler = new DevExpress.XtraEditors.ComboBoxEdit();
             this._gridControlSiparisDetay = new DevExpress.XtraGrid.GridControl();
             this._gridViewSiparisDetay = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -102,47 +103,69 @@ namespace GameCenterAI.WinForms
             this._grpMasaDetay.Controls.Add(this._txtBaslamaSaati);
             this._grpMasaDetay.Controls.Add(this._txtMusteri);
             this._grpMasaDetay.Controls.Add(this._lblMasaAdi);
+            this._grpMasaDetay.Controls.Add(this._lblOyun);
             this._grpMasaDetay.Controls.Add(this._btnMasaEkle);
             this._grpMasaDetay.Controls.Add(this._btnMasaSil);
             this._grpMasaDetay.Dock = System.Windows.Forms.DockStyle.Left;
             this._grpMasaDetay.Location = new System.Drawing.Point(0, 0);
             this._grpMasaDetay.Name = "_grpMasaDetay";
-            this._grpMasaDetay.Size = new System.Drawing.Size(300, 800);
+            this._grpMasaDetay.Size = new System.Drawing.Size(320, 800);
             this._grpMasaDetay.TabIndex = 0;
-            this._grpMasaDetay.Text = "Masa Yönetimi";
-            this._grpMasaDetay.AppearanceCaption.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this._grpMasaDetay.Text = "🎮 Masa Yönetimi";
+            this._grpMasaDetay.AppearanceCaption.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this._grpMasaDetay.AppearanceCaption.ForeColor = System.Drawing.Color.FromArgb(0, 102, 204);
             this._grpMasaDetay.AppearanceCaption.Options.UseFont = true;
+            this._grpMasaDetay.AppearanceCaption.Options.UseForeColor = true;
+            this._grpMasaDetay.AppearanceCaption.Options.UseTextOptions = true;
+            this._grpMasaDetay.AppearanceCaption.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             // 
             // _lblMasaAdi
             // 
-            this._lblMasaAdi.Appearance.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
+            this._lblMasaAdi.Appearance.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
             this._lblMasaAdi.Appearance.ForeColor = System.Drawing.Color.FromArgb(0, 102, 204);
             this._lblMasaAdi.Appearance.Options.UseFont = true;
             this._lblMasaAdi.Appearance.Options.UseForeColor = true;
             this._lblMasaAdi.Location = new System.Drawing.Point(20, 70);
             this._lblMasaAdi.Name = "_lblMasaAdi";
-            this._lblMasaAdi.Size = new System.Drawing.Size(100, 27);
+            this._lblMasaAdi.Size = new System.Drawing.Size(280, 32);
             this._lblMasaAdi.TabIndex = 0;
             this._lblMasaAdi.Text = "MASA_01";
+            this._lblMasaAdi.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this._lblMasaAdi.Appearance.Options.UseTextOptions = true;
+            // 
+            // _lblOyun
+            // 
+            this._lblOyun.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this._lblOyun.Appearance.ForeColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this._lblOyun.Appearance.Options.UseFont = true;
+            this._lblOyun.Appearance.Options.UseForeColor = true;
+            this._lblOyun.Location = new System.Drawing.Point(20, 40);
+            this._lblOyun.Name = "_lblOyun";
+            this._lblOyun.Size = new System.Drawing.Size(280, 20);
+            this._lblOyun.TabIndex = 0;
+            this._lblOyun.Text = "🎮 Oyun Bilgisi Yok";
+            this._lblOyun.Visible = false;
+            this._lblOyun.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this._lblOyun.Appearance.Options.UseTextOptions = true;
             // 
             // _txtMusteri
             // 
             this._txtMusteri.Location = new System.Drawing.Point(20, 110);
             this._txtMusteri.Name = "_txtMusteri";
-            this._txtMusteri.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F);
+            this._txtMusteri.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this._txtMusteri.Properties.Appearance.Options.UseFont = true;
             this._txtMusteri.Properties.ReadOnly = true;
-            this._txtMusteri.Size = new System.Drawing.Size(260, 20);
+            this._txtMusteri.Size = new System.Drawing.Size(280, 24);
             this._txtMusteri.TabIndex = 1;
             // 
             // _txtBaslamaSaati
             // 
             this._txtBaslamaSaati.Location = new System.Drawing.Point(20, 150);
             this._txtBaslamaSaati.Name = "_txtBaslamaSaati";
-            this._txtBaslamaSaati.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F);
+            this._txtBaslamaSaati.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this._txtBaslamaSaati.Properties.Appearance.Options.UseFont = true;
             this._txtBaslamaSaati.Properties.ReadOnly = true;
-            this._txtBaslamaSaati.Size = new System.Drawing.Size(260, 20);
+            this._txtBaslamaSaati.Size = new System.Drawing.Size(280, 24);
             this._txtBaslamaSaati.TabIndex = 2;
             // 
             // _txtGecenSure
@@ -224,14 +247,16 @@ namespace GameCenterAI.WinForms
             // _btnMasaAcKapat
             // 
             this._btnMasaAcKapat.Appearance.BackColor = System.Drawing.Color.FromArgb(0, 102, 204);
-            this._btnMasaAcKapat.Appearance.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this._btnMasaAcKapat.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this._btnMasaAcKapat.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnMasaAcKapat.Appearance.Options.UseBackColor = true;
             this._btnMasaAcKapat.Appearance.Options.UseFont = true;
             this._btnMasaAcKapat.Appearance.Options.UseForeColor = true;
+            this._btnMasaAcKapat.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(0, 82, 184);
+            this._btnMasaAcKapat.AppearanceHovered.Options.UseBackColor = true;
             this._btnMasaAcKapat.Location = new System.Drawing.Point(20, 480);
             this._btnMasaAcKapat.Name = "_btnMasaAcKapat";
-            this._btnMasaAcKapat.Size = new System.Drawing.Size(120, 45);
+            this._btnMasaAcKapat.Size = new System.Drawing.Size(130, 50);
             this._btnMasaAcKapat.TabIndex = 10;
             this._btnMasaAcKapat.Text = "▶ Masa Aç";
             this._btnMasaAcKapat.Click += new System.EventHandler(this.BtnMasaAcKapat_Click);
@@ -239,14 +264,16 @@ namespace GameCenterAI.WinForms
             // _btnSiparisEkle
             // 
             this._btnSiparisEkle.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 193, 7);
-            this._btnSiparisEkle.Appearance.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this._btnSiparisEkle.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this._btnSiparisEkle.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnSiparisEkle.Appearance.Options.UseBackColor = true;
             this._btnSiparisEkle.Appearance.Options.UseFont = true;
             this._btnSiparisEkle.Appearance.Options.UseForeColor = true;
-            this._btnSiparisEkle.Location = new System.Drawing.Point(20, 535);
+            this._btnSiparisEkle.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(230, 173, 0);
+            this._btnSiparisEkle.AppearanceHovered.Options.UseBackColor = true;
+            this._btnSiparisEkle.Location = new System.Drawing.Point(20, 540);
             this._btnSiparisEkle.Name = "_btnSiparisEkle";
-            this._btnSiparisEkle.Size = new System.Drawing.Size(120, 40);
+            this._btnSiparisEkle.Size = new System.Drawing.Size(130, 45);
             this._btnSiparisEkle.TabIndex = 12;
             this._btnSiparisEkle.Text = "➕ Sipariş Ekle";
             this._btnSiparisEkle.Click += new System.EventHandler(this.BtnSiparisEkle_Click);
@@ -269,14 +296,16 @@ namespace GameCenterAI.WinForms
             // _btnOdemeAl
             // 
             this._btnOdemeAl.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
-            this._btnOdemeAl.Appearance.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this._btnOdemeAl.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this._btnOdemeAl.Appearance.ForeColor = System.Drawing.Color.White;
             this._btnOdemeAl.Appearance.Options.UseBackColor = true;
             this._btnOdemeAl.Appearance.Options.UseFont = true;
             this._btnOdemeAl.Appearance.Options.UseForeColor = true;
+            this._btnOdemeAl.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(30, 150, 60);
+            this._btnOdemeAl.AppearanceHovered.Options.UseBackColor = true;
             this._btnOdemeAl.Location = new System.Drawing.Point(160, 480);
             this._btnOdemeAl.Name = "_btnOdemeAl";
-            this._btnOdemeAl.Size = new System.Drawing.Size(120, 45);
+            this._btnOdemeAl.Size = new System.Drawing.Size(130, 50);
             this._btnOdemeAl.TabIndex = 16;
             this._btnOdemeAl.Text = "💰 Ödeme Al";
             this._btnOdemeAl.Enabled = false;

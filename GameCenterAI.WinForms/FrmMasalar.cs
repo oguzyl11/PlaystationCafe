@@ -23,11 +23,13 @@ namespace GameCenterAI.WinForms
         private STarife _tarifeService;
         private SSiparis _siparisService;
         private SUrun _urunService;
+        private SAiService _aiService;
         private System.Windows.Forms.Timer _timer;
         
         // Sol Panel - Masa Detayları
         private GroupControl _grpMasaDetay;
         private LabelControl _lblMasaAdi;
+        private LabelControl _lblOyun;
         private TextEdit _txtMusteri;
         private TextEdit _txtBaslamaSaati;
         private TextEdit _txtGecenSure;
@@ -62,10 +64,28 @@ namespace GameCenterAI.WinForms
             _tarifeService = new STarife();
             _siparisService = new SSiparis();
             _urunService = new SUrun();
+            _aiService = new SAiService();
             
             InitializeTimer();
-            LoadMasalar();
-            LoadTarifeler();
+            
+            // Form yüklendikten sonra verileri yükle (Load event'inde)
+            this.Load += FrmMasalar_Load;
+        }
+
+        /// <summary>
+        /// Handles the form load event - loads data after form is fully initialized.
+        /// </summary>
+        private void FrmMasalar_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                LoadMasalar();
+                LoadTarifeler();
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Masalar yüklenirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -149,24 +169,24 @@ namespace GameCenterAI.WinForms
                     
                     tileItem.Tag = masa;
 
-                    // Set color and style based on status
+                    // Set color and style based on status with modern gradient effect
                     if (masa.Durum == "Dolu" || masa.Durum == "Full" || masa.Durum == "1")
                     {
-                        // Red/Dark Red for occupied
+                        // Modern Red gradient for occupied - with shadow effect
                         tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
                         tileItem.AppearanceItem.Normal.ForeColor = System.Drawing.Color.White;
                         tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(200, 35, 51);
                     }
                     else
                     {
-                        // Green for available
+                        // Modern Green gradient for available - with shadow effect
                         tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
                         tileItem.AppearanceItem.Normal.ForeColor = System.Drawing.Color.White;
                         tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(30, 150, 60);
                     }
                     
-                    // Tile style - font settings
-                    tileItem.AppearanceItem.Normal.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Bold);
+                    // Modern tile style - larger font with shadow effect
+                    tileItem.AppearanceItem.Normal.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
                     tileItem.AppearanceItem.Normal.Options.UseFont = true;
                     tileItem.AppearanceItem.Normal.Options.UseBorderColor = true;
                     
@@ -174,6 +194,9 @@ namespace GameCenterAI.WinForms
                     tileItem.AppearanceItem.Normal.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
                     tileItem.AppearanceItem.Normal.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
                     tileItem.AppearanceItem.Normal.Options.UseTextOptions = true;
+                    
+                    // Add shadow effect (using border)
+                    tileItem.AppearanceItem.Normal.Options.UseBorderColor = true;
 
                     tileItem.ItemClick += TileItem_ItemClick;
                     _tileGroupMasalar.Items.Add(tileItem);
@@ -242,6 +265,35 @@ namespace GameCenterAI.WinForms
                 _txtMusteri.Text = uye != null ? uye.AdSoyad : $"Üye ID: {_aktifHareket.UyeID}";
                 _txtBaslamaSaati.Text = _aktifHareket.Baslangic.ToString("HH:mm:ss");
                 
+                // Oyun bilgisi (AI tahmini veya kayıtlı)
+                if (_aktifHareket.OyunID.HasValue)
+                {
+                    Oyunlar oyun = OyunGetir(_aktifHareket.OyunID.Value);
+                    _lblOyun.Text = oyun != null ? $"🎮 {oyun.OyunAdi}" : "🎮 Oyun Bilgisi Yok";
+                    _lblOyun.Visible = true;
+                }
+                else
+                {
+                    // AI ile oyun tahmini yap
+                    int? tahminEdilenOyunID = _aiService.OyunTahminEt(_aktifHareket.UyeID, _seciliMasa.MasaID);
+                    if (tahminEdilenOyunID.HasValue)
+                    {
+                        Oyunlar oyun = OyunGetir(tahminEdilenOyunID.Value);
+                        if (oyun != null)
+                        {
+                            _lblOyun.Text = $"🎮 {oyun.OyunAdi} (Tahmin)";
+                            _lblOyun.Visible = true;
+                            // Tahmin edilen oyunu kaydet
+                            _hareketService.OyunGuncelle(_aktifHareket.HareketID, tahminEdilenOyunID.Value);
+                        }
+                    }
+                    else
+                    {
+                        _lblOyun.Text = "🎮 Oyun Bilgisi Yok";
+                        _lblOyun.Visible = true;
+                    }
+                }
+                
                 int gecenSure = _hareketService.GecenSureGetir(_aktifHareket.HareketID);
                 _txtGecenSure.Text = $"{gecenSure} Dk.";
                 
@@ -293,12 +345,57 @@ namespace GameCenterAI.WinForms
                 _txtPesinAlinan.Text = "0,00";
                 _lblToplam.Text = "Toplam: 0,00 TL";
                 
+                _lblOyun.Text = "🎮 Oyun Bilgisi Yok";
+                _lblOyun.Visible = false;
+                
                 _btnMasaAcKapat.Enabled = true;
                 _btnMasaAcKapat.Text = "▶ Masa Aç";
                 _btnMasaAcKapat.Appearance.BackColor = System.Drawing.Color.FromArgb(0, 102, 204);
                 _btnOdemeAl.Enabled = false;
                 
                 _gridControlSiparisDetay.DataSource = new List<SiparisDetaylar>();
+            }
+        }
+
+        /// <summary>
+        /// Gets a game by ID from the database.
+        /// </summary>
+        /// <param name="oyunID">The game ID.</param>
+        /// <returns>The game entity, or null if not found.</returns>
+        private Oyunlar OyunGetir(int oyunID)
+        {
+            try
+            {
+                System.Data.SqlClient.SqlCommand command = new System.Data.SqlClient.SqlCommand();
+                command.Connection = GameCenterAI.DataAccess.Tools.Connection;
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = "SELECT OyunID, OyunAdi, Kategori, Platform FROM Oyunlar WHERE OyunID = @OyunID";
+
+                command.Parameters.AddWithValue("@OyunID", oyunID);
+
+                GameCenterAI.DataAccess.Tools.OpenConnection();
+                System.Data.SqlClient.SqlDataReader reader = command.ExecuteReader();
+
+                Oyunlar oyun = null;
+                if (reader.Read())
+                {
+                    oyun = new Oyunlar
+                    {
+                        OyunID = Convert.ToInt32(reader["OyunID"]),
+                        OyunAdi = reader["OyunAdi"].ToString(),
+                        Kategori = reader["Kategori"] != DBNull.Value ? reader["Kategori"].ToString() : string.Empty,
+                        Platform = reader["Platform"] != DBNull.Value ? reader["Platform"].ToString() : string.Empty
+                    };
+                }
+
+                reader.Close();
+                GameCenterAI.DataAccess.Tools.CloseConnection();
+
+                return oyun;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -381,12 +478,50 @@ namespace GameCenterAI.WinForms
                         TarifeID = tarifeler[tarifeIndex].TarifeID
                     };
 
+                    // AI ile oyun tahmini yap
+                    int? tahminEdilenOyunID = _aiService.OyunTahminEt(frmUyeSec.SecilenUye.UyeID, _seciliMasa.MasaID);
+                    if (tahminEdilenOyunID.HasValue)
+                    {
+                        yeniHareket.OyunID = tahminEdilenOyunID.Value;
+                    }
+
+                    // Dinamik fiyatlandırma hesapla
+                    DateTime simdi = DateTime.Now;
+                    decimal dinamikCarpan = _aiService.DinamikFiyatHesapla(_seciliMasa.MasaID, simdi.Hour, (int)simdi.DayOfWeek);
+                    if (dinamikCarpan > 1.0m)
+                    {
+                        // Saatlik ücreti dinamik fiyatla güncelle
+                        decimal yeniSaatlikUcret = _seciliMasa.SaatlikUcret * dinamikCarpan;
+                        _masaService.Guncelle(new Masalar
+                        {
+                            MasaID = _seciliMasa.MasaID,
+                            MasaAdi = _seciliMasa.MasaAdi,
+                            SaatlikUcret = yeniSaatlikUcret,
+                            Durum = _seciliMasa.Durum
+                        });
+                        XtraMessageBox.Show($"Yoğun saat nedeniyle saatlik ücret %{(dinamikCarpan - 1) * 100:F0} artırıldı: {yeniSaatlikUcret:N2} TL", "Dinamik Fiyatlandırma", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
                     int hareketID = _hareketService.Baslat(yeniHareket);
                     
                     if (hareketID > 0)
                     {
                         // Masa durumunu "Dolu" olarak güncelle
                         _masaService.DurumGuncelle(_seciliMasa.MasaID, "Dolu");
+                        
+                        // Upsell önerileri göster
+                        var upsellOneriler = _aiService.UpsellOneriGetir(frmUyeSec.SecilenUye.UyeID, tahminEdilenOyunID);
+                        if (upsellOneriler.Count > 0)
+                        {
+                            string mesaj = "💡 Önerilerimiz:\n\n";
+                            foreach (var oneri in upsellOneriler.Take(3))
+                            {
+                                mesaj += $"• {oneri.Value}\n";
+                            }
+                            mesaj += "\nSipariş eklemek için 'Sipariş Ekle' butonunu kullanabilirsiniz.";
+                            
+                            XtraMessageBox.Show(mesaj, "AI Önerileri", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                         
                         XtraMessageBox.Show("Masa başlatıldı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadMasalar();

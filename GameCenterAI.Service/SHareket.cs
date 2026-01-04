@@ -23,7 +23,7 @@ namespace GameCenterAI.Service
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
-            command.CommandText = "INSERT INTO Hareketler (UyeID, MasaID, TarifeID, Baslangic, Ucret, PesinAlinan, SiparisToplami, Durum) OUTPUT INSERTED.HareketID VALUES (@UyeID, @MasaID, @TarifeID, @Baslangic, @Ucret, @PesinAlinan, @SiparisToplami, @Durum)";
+            command.CommandText = "INSERT INTO Hareketler (UyeID, MasaID, TarifeID, OyunID, Baslangic, Ucret, PesinAlinan, SiparisToplami, Durum) OUTPUT INSERTED.HareketID VALUES (@UyeID, @MasaID, @TarifeID, @OyunID, @Baslangic, @Ucret, @PesinAlinan, @SiparisToplami, @Durum)";
 
             command.Parameters.AddWithValue("@UyeID", hareket.UyeID);
             command.Parameters.AddWithValue("@MasaID", hareket.MasaID);
@@ -40,6 +40,15 @@ namespace GameCenterAI.Service
             else
             {
                 command.Parameters.AddWithValue("@TarifeID", DBNull.Value);
+            }
+
+            if (hareket.OyunID.HasValue)
+            {
+                command.Parameters.AddWithValue("@OyunID", hareket.OyunID.Value);
+            }
+            else
+            {
+                command.Parameters.AddWithValue("@OyunID", DBNull.Value);
             }
 
             try
@@ -108,7 +117,7 @@ namespace GameCenterAI.Service
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
-            command.CommandText = "SELECT HareketID, UyeID, MasaID, TarifeID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE MasaID = @MasaID AND Durum = 'Aktif'";
+            command.CommandText = "SELECT HareketID, UyeID, MasaID, TarifeID, OyunID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE MasaID = @MasaID AND Durum = 'Aktif'";
 
             command.Parameters.AddWithValue("@MasaID", masaID);
 
@@ -134,6 +143,11 @@ namespace GameCenterAI.Service
                     if (reader["TarifeID"] != DBNull.Value)
                     {
                         hareket.TarifeID = Convert.ToInt32(reader["TarifeID"]);
+                    }
+
+                    if (reader["OyunID"] != DBNull.Value)
+                    {
+                        hareket.OyunID = Convert.ToInt32(reader["OyunID"]);
                     }
 
                     if (reader["Bitis"] != DBNull.Value)
@@ -351,6 +365,48 @@ namespace GameCenterAI.Service
             catch (Exception ex)
             {
                 throw new Exception("Tarife güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Updates the game ID for a transaction.
+        /// </summary>
+        /// <param name="hareketID">The transaction ID.</param>
+        /// <param name="oyunID">The game ID (nullable).</param>
+        /// <returns>True if successful, false otherwise.</returns>
+        public bool OyunGuncelle(int hareketID, int? oyunID)
+        {
+            bool result = false;
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "UPDATE Hareketler SET OyunID = @OyunID WHERE HareketID = @HareketID";
+
+            command.Parameters.AddWithValue("@HareketID", hareketID);
+            if (oyunID.HasValue)
+            {
+                command.Parameters.AddWithValue("@OyunID", oyunID.Value);
+            }
+            else
+            {
+                command.Parameters.AddWithValue("@OyunID", DBNull.Value);
+            }
+
+            try
+            {
+                Tools.OpenConnection();
+                int affectedRows = command.ExecuteNonQuery();
+                result = affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Oyun güncelleme işlemi sırasında hata oluştu: " + ex.Message);
             }
             finally
             {

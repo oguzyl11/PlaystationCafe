@@ -67,6 +67,14 @@ namespace GameCenterAI.Interface
         /// <param name="tarifeID">The new tariff ID.</param>
         /// <returns>True if successful, false otherwise.</returns>
         bool TarifeGuncelle(int hareketID, int tarifeID);
+
+        /// <summary>
+        /// Updates the game ID for a transaction.
+        /// </summary>
+        /// <param name="hareketID">The transaction ID.</param>
+        /// <param name="oyunID">The game ID.</param>
+        /// <returns>True if successful, false otherwise.</returns>
+        bool OyunGuncelle(int hareketID, int? oyunID);
     }
 }
 
