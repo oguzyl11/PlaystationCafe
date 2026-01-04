@@ -162,6 +162,7 @@ namespace GameCenterAI.Service
 
         /// <summary>
         /// Creates tournament matches in database from pairings.
+        /// Dynamically determines the starting round based on the number of matches.
         /// </summary>
         /// <param name="turnuvaID">The tournament ID.</param>
         /// <param name="eslestirmeler">List of pairings.</param>
@@ -172,6 +173,35 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int macNo = 1;
+                int macSayisi = eslestirmeler.Count;
+                
+                // Maç sayısına göre tur belirle
+                string tur = "";
+                if (macSayisi == 1)
+                {
+                    tur = "Final";
+                }
+                else if (macSayisi == 2)
+                {
+                    tur = "Yarı Final";
+                }
+                else if (macSayisi == 4)
+                {
+                    tur = "Çeyrek Final";
+                }
+                else if (macSayisi == 8)
+                {
+                    tur = "Son 16";
+                }
+                else if (macSayisi == 16)
+                {
+                    tur = "Son 32";
+                }
+                else
+                {
+                    // Varsayılan olarak "İlk Tur" kullan
+                    tur = "İlk Tur";
+                }
 
                 foreach (var eslestirme in eslestirmeler)
                 {
@@ -185,7 +215,7 @@ namespace GameCenterAI.Service
                     command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
                     command.Parameters.AddWithValue("@Uye1ID", eslestirme.Key);
                     command.Parameters.AddWithValue("@Uye2ID", eslestirme.Value);
-                    command.Parameters.AddWithValue("@Tur", "Çeyrek Final");
+                    command.Parameters.AddWithValue("@Tur", tur);
                     command.Parameters.AddWithValue("@MacNo", macNo);
 
                     command.ExecuteNonQuery();

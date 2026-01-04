@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
+using GameCenterAI.DataAccess;
 using GameCenterAI.Entity;
 using GameCenterAI.Service;
 
@@ -100,6 +103,24 @@ namespace GameCenterAI.WinForms
                     if (XtraMessageBox.Show("Bu turnuva için zaten maçlar oluşturulmuş. Yeni maçlar oluşturmak istiyor musunuz? (Mevcut maçlar silinecek)", "Uyarı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                     {
                         BracketGoster();
+                        return;
+                    }
+                    
+                    // Mevcut maçları sil
+                    try
+                    {
+                        Tools.OpenConnection();
+                        SqlCommand deleteCommand = new SqlCommand();
+                        deleteCommand.Connection = Tools.Connection;
+                        deleteCommand.CommandType = CommandType.Text;
+                        deleteCommand.CommandText = "DELETE FROM TurnuvaMaclari WHERE TurnuvaID = @TurnuvaID";
+                        deleteCommand.Parameters.AddWithValue("@TurnuvaID", _seciliTurnuvaID);
+                        deleteCommand.ExecuteNonQuery();
+                        Tools.CloseConnection();
+                    }
+                    catch (Exception ex)
+                    {
+                        XtraMessageBox.Show($"Eski maçlar silinirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
