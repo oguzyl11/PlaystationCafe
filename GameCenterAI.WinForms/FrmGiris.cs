@@ -79,6 +79,19 @@ namespace GameCenterAI.WinForms
                 _txtSifre.Text = string.Empty;
             }
         }
+
+        /// <summary>
+        /// Handles the KeyDown event for password textbox - allows Enter key to login.
+        /// </summary>
+        private void TxtSifre_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                BtnGiris_Click(sender, e);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
     }
 }
 

@@ -14,6 +14,8 @@ namespace GameCenterAI.WinForms
     public partial class FrmAnaMenu : DevExpress.XtraBars.Ribbon.RibbonForm
     {
         private Uyeler _aktifUye;
+        private System.Windows.Forms.Timer _istatistikTimer;
+        private SRapor _raporService;
 
         /// <summary>
         /// Initializes a new instance of the FrmAnaMenu class.

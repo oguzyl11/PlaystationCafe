@@ -142,6 +142,19 @@ namespace GameCenterAI.WinForms
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        /// <summary>
+        /// Handles the KeyDown event for password repeat textbox - allows Enter key to submit.
+        /// </summary>
+        private void TxtSifreTekrar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                BtnKaydet_Click(sender, e);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
     }
 }
 
