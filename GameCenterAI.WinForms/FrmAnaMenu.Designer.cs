@@ -350,6 +350,7 @@ namespace GameCenterAI.WinForms
             // _ribbonPageGroupAraclar
             // 
             this._ribbonPageGroupAraclar.ItemLinks.Add(this._barButtonItemAraclar);
+            this._ribbonPageGroupAraclar.ItemLinks.Add(this._barButtonItemTurnuva);
             this._ribbonPageGroupAraclar.ItemLinks.Add(this._barButtonItemYuzTanima);
             this._ribbonPageGroupAraclar.Name = "_ribbonPageGroupAraclar";
             this._ribbonPageGroupAraclar.Text = "Araçlar";

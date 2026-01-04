@@ -186,6 +186,18 @@
     <Compile Include="FrmTurnuva.Designer.cs">
       <DependentUpon>FrmTurnuva.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmTurnuvaKayit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmTurnuvaKayit.Designer.cs">
+      <DependentUpon>FrmTurnuvaKayit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMacSonucu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMacSonucu.Designer.cs">
+      <DependentUpon>FrmMacSonucu.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FrmGiris.resx">
       <DependentUpon>FrmGiris.cs</DependentUpon>
@@ -231,6 +243,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmTurnuva.resx">
       <DependentUpon>FrmTurnuva.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmTurnuvaKayit.resx">
+      <DependentUpon>FrmTurnuvaKayit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMacSonucu.resx">
+      <DependentUpon>FrmMacSonucu.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

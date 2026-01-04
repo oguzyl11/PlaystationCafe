@@ -29,8 +29,9 @@ namespace GameCenterAI.Service
         // EmguCV objects - uncomment after installing EmguCV
         // private Emgu.CV.Capture _camera;
         // private Emgu.CV.CascadeClassifier _faceClassifier;
-        private object _camera;
-        private object _faceClassifier;
+        // Note: These fields are reserved for future EmguCV implementation
+        // private object _camera;
+        // private object _faceClassifier;
         /// <summary>
         /// Performs face recognition from an image file path.
         /// This is a placeholder implementation. In production, this would use EmguCV for actual face recognition.
@@ -216,7 +217,7 @@ namespace GameCenterAI.Service
                 // Get game details from database
                 return OyunDetaylariniGetir(onerilenOyunIDler);
             }
-            catch (Exception ex)
+            catch
             {
                 // Fallback to simple recommendation if ML fails
                 return OneriGetir(uyeID);
@@ -437,8 +438,6 @@ namespace GameCenterAI.Service
                 _faceClassifier = null;
             }
             */
-            _camera = null;
-            _faceClassifier = null;
         }
     }
 

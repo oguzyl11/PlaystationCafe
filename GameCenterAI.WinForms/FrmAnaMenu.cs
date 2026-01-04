@@ -168,8 +168,36 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemTurnuva_Click(object sender, ItemClickEventArgs e)
         {
-            FrmTurnuva frmTurnuva = new FrmTurnuva();
-            frmTurnuva.Show();
+            ShowFormInPanel<FrmTurnuva>();
+        }
+
+        /// <summary>
+        /// Shows a form inside the content panel (single window approach).
+        /// </summary>
+        /// <typeparam name="T">The form type to show.</typeparam>
+        private void ShowFormInPanel<T>() where T : Form, new()
+        {
+            // Clear existing controls
+            _contentPanel.Controls.Clear();
+
+            // Dispose existing form if any
+            foreach (Control control in _contentPanel.Controls)
+            {
+                if (control is Form)
+                {
+                    ((Form)control).Dispose();
+                }
+            }
+
+            // Create and show new form
+            T form = new T();
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+            form.Visible = true;
+
+            _contentPanel.Controls.Add(form);
+            form.BringToFront();
         }
 
         /// <summary>

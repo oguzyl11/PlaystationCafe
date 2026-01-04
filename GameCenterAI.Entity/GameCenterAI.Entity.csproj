@@ -45,6 +45,7 @@
     <Compile Include="Masalar.cs" />
     <Compile Include="Oyunlar.cs" />
     <Compile Include="Turnuvalar.cs" />
+    <Compile Include="TurnuvaMaclari.cs" />
     <Compile Include="Hareketler.cs" />
     <Compile Include="Siparisler.cs" />
     <Compile Include="SiparisDetaylar.cs" />
