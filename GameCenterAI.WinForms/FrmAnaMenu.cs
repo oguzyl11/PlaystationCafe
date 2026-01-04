@@ -148,6 +148,24 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private void BarButtonItemMuhasebe_Click(object sender, ItemClickEventArgs e)
         {
+            // Muhasebe sekmesinde hem raporlar hem faturalar gösterilebilir
+            // Şimdilik faturaları göster
+            ShowFormInPanel<FrmFaturalar>();
+        }
+
+        /// <summary>
+        /// Handles the Faturalar (Invoices) button click event.
+        /// </summary>
+        private void BarButtonItemFaturalar_Click(object sender, ItemClickEventArgs e)
+        {
+            ShowFormInPanel<FrmFaturalar>();
+        }
+
+        /// <summary>
+        /// Handles the Raporlar (Reports) button click event.
+        /// </summary>
+        private void BarButtonItemRaporlar_Click(object sender, ItemClickEventArgs e)
+        {
             ShowFormInPanel<FrmRaporlar>();
         }
 

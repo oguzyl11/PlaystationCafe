@@ -34,8 +34,11 @@ namespace GameCenterAI.WinForms
             this._btnDuzenle = new DevExpress.XtraEditors.SimpleButton();
             this._btnSil = new DevExpress.XtraEditors.SimpleButton();
             this._btnYenile = new DevExpress.XtraEditors.SimpleButton();
+            this._txtArama = new DevExpress.XtraEditors.TextEdit();
+            this._lblArama = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this._gridControlUrunler)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridViewUrunler)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._txtArama.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // _gridControlUrunler
@@ -43,10 +46,10 @@ namespace GameCenterAI.WinForms
             this._gridControlUrunler.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._gridControlUrunler.Location = new System.Drawing.Point(12, 50);
+            this._gridControlUrunler.Location = new System.Drawing.Point(12, 80);
             this._gridControlUrunler.MainView = this._gridViewUrunler;
             this._gridControlUrunler.Name = "_gridControlUrunler";
-            this._gridControlUrunler.Size = new System.Drawing.Size(900, 500);
+            this._gridControlUrunler.Size = new System.Drawing.Size(900, 470);
             this._gridControlUrunler.TabIndex = 0;
             this._gridControlUrunler.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewUrunler});
@@ -59,39 +62,83 @@ namespace GameCenterAI.WinForms
             // 
             // _btnYeni
             // 
+            this._btnYeni.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnYeni.Appearance.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this._btnYeni.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnYeni.Appearance.Options.UseFont = true;
+            this._btnYeni.Appearance.Options.UseBackColor = true;
+            this._btnYeni.Appearance.Options.UseForeColor = true;
             this._btnYeni.Location = new System.Drawing.Point(12, 12);
             this._btnYeni.Name = "_btnYeni";
-            this._btnYeni.Size = new System.Drawing.Size(100, 30);
+            this._btnYeni.Size = new System.Drawing.Size(120, 40);
             this._btnYeni.TabIndex = 1;
-            this._btnYeni.Text = "Yeni";
+            this._btnYeni.Text = "➕ Yeni Ürün";
             this._btnYeni.Click += new System.EventHandler(this.BtnYeni_Click);
             // 
             // _btnDuzenle
             // 
-            this._btnDuzenle.Location = new System.Drawing.Point(118, 12);
+            this._btnDuzenle.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnDuzenle.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 193, 7);
+            this._btnDuzenle.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnDuzenle.Appearance.Options.UseFont = true;
+            this._btnDuzenle.Appearance.Options.UseBackColor = true;
+            this._btnDuzenle.Appearance.Options.UseForeColor = true;
+            this._btnDuzenle.Location = new System.Drawing.Point(138, 12);
             this._btnDuzenle.Name = "_btnDuzenle";
-            this._btnDuzenle.Size = new System.Drawing.Size(100, 30);
+            this._btnDuzenle.Size = new System.Drawing.Size(120, 40);
             this._btnDuzenle.TabIndex = 2;
-            this._btnDuzenle.Text = "Düzenle";
+            this._btnDuzenle.Text = "✏️ Düzenle";
             this._btnDuzenle.Click += new System.EventHandler(this.BtnDuzenle_Click);
             // 
             // _btnSil
             // 
-            this._btnSil.Location = new System.Drawing.Point(224, 12);
+            this._btnSil.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnSil.Appearance.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+            this._btnSil.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnSil.Appearance.Options.UseFont = true;
+            this._btnSil.Appearance.Options.UseBackColor = true;
+            this._btnSil.Appearance.Options.UseForeColor = true;
+            this._btnSil.Location = new System.Drawing.Point(264, 12);
             this._btnSil.Name = "_btnSil";
-            this._btnSil.Size = new System.Drawing.Size(100, 30);
+            this._btnSil.Size = new System.Drawing.Size(120, 40);
             this._btnSil.TabIndex = 3;
-            this._btnSil.Text = "Sil";
+            this._btnSil.Text = "🗑️ Sil";
             this._btnSil.Click += new System.EventHandler(this.BtnSil_Click);
             // 
             // _btnYenile
             // 
-            this._btnYenile.Location = new System.Drawing.Point(330, 12);
+            this._btnYenile.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this._btnYenile.Appearance.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this._btnYenile.Appearance.ForeColor = System.Drawing.Color.White;
+            this._btnYenile.Appearance.Options.UseFont = true;
+            this._btnYenile.Appearance.Options.UseBackColor = true;
+            this._btnYenile.Appearance.Options.UseForeColor = true;
+            this._btnYenile.Location = new System.Drawing.Point(390, 12);
             this._btnYenile.Name = "_btnYenile";
-            this._btnYenile.Size = new System.Drawing.Size(100, 30);
+            this._btnYenile.Size = new System.Drawing.Size(120, 40);
             this._btnYenile.TabIndex = 4;
-            this._btnYenile.Text = "Yenile";
+            this._btnYenile.Text = "🔄 Yenile";
             this._btnYenile.Click += new System.EventHandler(this.BtnYenile_Click);
+            // 
+            // _lblArama
+            // 
+            this._lblArama.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this._lblArama.Appearance.Options.UseFont = true;
+            this._lblArama.Location = new System.Drawing.Point(520, 25);
+            this._lblArama.Name = "_lblArama";
+            this._lblArama.Size = new System.Drawing.Size(38, 15);
+            this._lblArama.TabIndex = 5;
+            this._lblArama.Text = "🔍 Ara:";
+            // 
+            // _txtArama
+            // 
+            this._txtArama.Location = new System.Drawing.Point(564, 22);
+            this._txtArama.Name = "_txtArama";
+            this._txtArama.Properties.NullValuePrompt = "Ürün Adı, Kategori, Fiyat veya Stok ara...";
+            this._txtArama.Properties.NullValuePromptShowForEmptyValue = true;
+            this._txtArama.Size = new System.Drawing.Size(348, 20);
+            this._txtArama.TabIndex = 6;
+            this._txtArama.TextChanged += new System.EventHandler(this.TxtArama_TextChanged);
             // 
             // FrmUrunler
             // 
@@ -99,6 +146,8 @@ namespace GameCenterAI.WinForms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(924, 562);
+            this.Controls.Add(this._txtArama);
+            this.Controls.Add(this._lblArama);
             this.Controls.Add(this._btnYenile);
             this.Controls.Add(this._btnSil);
             this.Controls.Add(this._btnDuzenle);
@@ -109,7 +158,9 @@ namespace GameCenterAI.WinForms
             this.Text = "GameCenter AI - Ürün Yönetimi";
             ((System.ComponentModel.ISupportInitialize)(this._gridControlUrunler)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridViewUrunler)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._txtArama.Properties)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         #endregion

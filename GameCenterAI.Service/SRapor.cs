@@ -196,6 +196,114 @@ namespace GameCenterAI.Service
 
             return dt;
         }
+
+        /// <summary>
+        /// Gets daily revenue (günlük gelir).
+        /// </summary>
+        /// <param name="tarih">The date.</param>
+        /// <returns>Daily revenue amount.</returns>
+        public decimal GunlukGelir(DateTime tarih)
+        {
+            decimal toplam = 0;
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = @"
+                SELECT ISNULL(SUM(h.Ucret + h.SiparisToplami), 0) AS Toplam
+                FROM Hareketler h
+                WHERE CAST(h.Baslangic AS DATE) = @Tarih AND h.Durum = 'Kapatıldı'";
+
+            command.Parameters.AddWithValue("@Tarih", tarih.Date);
+
+            try
+            {
+                Tools.OpenConnection();
+                object result = command.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    toplam = Convert.ToDecimal(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Günlük gelir hesaplanırken hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return toplam;
+        }
+
+        /// <summary>
+        /// Gets count of active tables (aktif masalar).
+        /// </summary>
+        /// <returns>Count of active tables.</returns>
+        public int AktifMasaSayisi()
+        {
+            int sayi = 0;
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "SELECT COUNT(*) FROM Masalar WHERE Durum != 'Boş'";
+
+            try
+            {
+                Tools.OpenConnection();
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    sayi = Convert.ToInt32(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Aktif masa sayısı hesaplanırken hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return sayi;
+        }
+
+        /// <summary>
+        /// Gets total pending payments (bekleyen ödemeler).
+        /// </summary>
+        /// <returns>Total pending payment amount.</returns>
+        public decimal BekleyenOdemeToplami()
+        {
+            decimal toplam = 0;
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = @"
+                SELECT ISNULL(SUM(h.Ucret + h.SiparisToplami - h.PesinAlinan), 0) AS BekleyenToplam
+                FROM Hareketler h
+                WHERE h.Durum = 'Aktif' AND (h.Ucret + h.SiparisToplami - h.PesinAlinan) > 0";
+
+            try
+            {
+                Tools.OpenConnection();
+                object result = command.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    toplam = Convert.ToDecimal(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Bekleyen ödeme toplamı hesaplanırken hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return toplam;
+        }
     }
 }
 

@@ -52,6 +52,7 @@
     <Compile Include="Urunler.cs" />
     <Compile Include="Tarifeler.cs" />
     <Compile Include="Notlar.cs" />
+    <Compile Include="Faturalar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

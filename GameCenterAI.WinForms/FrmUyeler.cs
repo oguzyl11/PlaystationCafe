@@ -22,6 +22,9 @@ namespace GameCenterAI.WinForms
         private SimpleButton _btnDuzenle;
         private SimpleButton _btnSil;
         private SimpleButton _btnYenile;
+        private TextEdit _txtArama;
+        private LabelControl _lblArama;
+        private List<Uyeler> _tumUyeler;
 
         /// <summary>
         /// Initializes a new instance of the FrmUyeler class.
@@ -40,12 +43,43 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                List<Uyeler> uyeler = _uyeService.Listele();
-                _gridControlUyeler.DataSource = uyeler;
+                _tumUyeler = _uyeService.Listele();
+                _gridControlUyeler.DataSource = _tumUyeler;
+                _gridViewUyeler.PopulateColumns();
             }
             catch (Exception ex)
             {
                 XtraMessageBox.Show($"Üyeler yüklenirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Filters the grid based on search text.
+        /// </summary>
+        private void TxtArama_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                string aramaMetni = _txtArama.Text.ToLower();
+                
+                if (string.IsNullOrWhiteSpace(aramaMetni))
+                {
+                    _gridControlUyeler.DataSource = _tumUyeler;
+                }
+                else
+                {
+                    var filtrelenmisUyeler = _tumUyeler.Where(u => 
+                        (u.AdSoyad != null && u.AdSoyad.ToLower().Contains(aramaMetni)) ||
+                        (u.KullaniciAdi != null && u.KullaniciAdi.ToLower().Contains(aramaMetni)) ||
+                        (u.Bakiye.ToString().Contains(aramaMetni))
+                    ).ToList();
+                    
+                    _gridControlUyeler.DataSource = filtrelenmisUyeler;
+                }
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Arama sırasında hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

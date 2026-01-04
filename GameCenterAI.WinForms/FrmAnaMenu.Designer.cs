@@ -44,6 +44,8 @@ namespace GameCenterAI.WinForms
             this._barButtonItemYardim = new DevExpress.XtraBars.BarButtonItem();
             this._barButtonItemTurnuva = new DevExpress.XtraBars.BarButtonItem();
             this._barButtonItemYuzTanima = new DevExpress.XtraBars.BarButtonItem();
+            this._barButtonItemFaturalar = new DevExpress.XtraBars.BarButtonItem();
+            this._barButtonItemRaporlar = new DevExpress.XtraBars.BarButtonItem();
             this._barButtonItemCikis = new DevExpress.XtraBars.BarButtonItem();
             this._ribbonPageKafe = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this._ribbonPageGroupKafe = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -91,6 +93,8 @@ namespace GameCenterAI.WinForms
             this._barButtonItemCariUye,
             this._barButtonItemStok,
             this._barButtonItemMuhasebe,
+            this._barButtonItemFaturalar,
+            this._barButtonItemRaporlar,
             this._barButtonItemKontrol,
             this._barButtonItemBirimIslemleri,
             this._barButtonItemSMS,
@@ -103,7 +107,7 @@ namespace GameCenterAI.WinForms
             this._barButtonItemYuzTanima,
             this._barButtonItemCikis});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl1.MaxItemId = 16;
+            this.ribbonControl1.MaxItemId = 18;
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this._ribbonPageKafe,
@@ -148,6 +152,20 @@ namespace GameCenterAI.WinForms
             this._barButtonItemMuhasebe.Id = 4;
             this._barButtonItemMuhasebe.Name = "_barButtonItemMuhasebe";
             this._barButtonItemMuhasebe.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BarButtonItemMuhasebe_Click);
+            // 
+            // _barButtonItemFaturalar
+            // 
+            this._barButtonItemFaturalar.Caption = "📄 Faturalar";
+            this._barButtonItemFaturalar.Id = 17;
+            this._barButtonItemFaturalar.Name = "_barButtonItemFaturalar";
+            this._barButtonItemFaturalar.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BarButtonItemFaturalar_Click);
+            // 
+            // _barButtonItemRaporlar
+            // 
+            this._barButtonItemRaporlar.Caption = "📊 Raporlar";
+            this._barButtonItemRaporlar.Id = 18;
+            this._barButtonItemRaporlar.Name = "_barButtonItemRaporlar";
+            this._barButtonItemRaporlar.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BarButtonItemRaporlar_Click);
             // 
             // _barButtonItemKontrol
             // 
@@ -275,6 +293,8 @@ namespace GameCenterAI.WinForms
             // _ribbonPageGroupMuhasebe
             // 
             this._ribbonPageGroupMuhasebe.ItemLinks.Add(this._barButtonItemMuhasebe);
+            this._ribbonPageGroupMuhasebe.ItemLinks.Add(this._barButtonItemFaturalar);
+            this._ribbonPageGroupMuhasebe.ItemLinks.Add(this._barButtonItemRaporlar);
             this._ribbonPageGroupMuhasebe.Name = "_ribbonPageGroupMuhasebe";
             this._ribbonPageGroupMuhasebe.Text = "Muhasebe İşlemleri";
             // 
@@ -424,6 +444,8 @@ namespace GameCenterAI.WinForms
         private DevExpress.XtraBars.BarButtonItem _barButtonItemCariUye;
         private DevExpress.XtraBars.BarButtonItem _barButtonItemStok;
         private DevExpress.XtraBars.BarButtonItem _barButtonItemMuhasebe;
+        private DevExpress.XtraBars.BarButtonItem _barButtonItemFaturalar;
+        private DevExpress.XtraBars.BarButtonItem _barButtonItemRaporlar;
         private DevExpress.XtraBars.BarButtonItem _barButtonItemKontrol;
         private DevExpress.XtraBars.BarButtonItem _barButtonItemBirimIslemleri;
         private DevExpress.XtraBars.BarButtonItem _barButtonItemSMS;

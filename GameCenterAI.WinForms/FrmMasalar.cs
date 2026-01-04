@@ -24,6 +24,7 @@ namespace GameCenterAI.WinForms
         private SSiparis _siparisService;
         private SUrun _urunService;
         private SAiService _aiService;
+        private SFatura _faturaService;
         private System.Windows.Forms.Timer _timer;
         
         // Sol Panel - Masa Detayları
@@ -65,6 +66,7 @@ namespace GameCenterAI.WinForms
             _siparisService = new SSiparis();
             _urunService = new SUrun();
             _aiService = new SAiService();
+            _faturaService = new SFatura();
             
             InitializeTimer();
             
@@ -571,7 +573,11 @@ namespace GameCenterAI.WinForms
 
                 if (kalan <= 0)
                 {
-                    XtraMessageBox.Show("Ödeme tamamlanmış!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Ödeme tamamlanmış - Fatura oluştur
+                    if (XtraMessageBox.Show("Ödeme tamamlanmış! Fatura oluşturmak ister misiniz?", "Fatura", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        FaturaOlustur();
+                    }
                     return;
                 }
 
@@ -584,7 +590,23 @@ namespace GameCenterAI.WinForms
                     {
                         _aktifHareket.PesinAlinan += odemeMiktari;
                         _hareketService.PesinAlinanGuncelle(_aktifHareket.HareketID, _aktifHareket.PesinAlinan);
-                        XtraMessageBox.Show($"Ödeme alındı! Toplam peşin: {_aktifHareket.PesinAlinan:N2} TL", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        // Güncel toplam hesapla
+                        decimal yeniKalan = (_hareketService.UcretHesapla(_aktifHareket.HareketID) + _aktifHareket.SiparisToplami) - _aktifHareket.PesinAlinan;
+                        
+                        if (yeniKalan <= 0)
+                        {
+                            // Ödeme tamamlandı - Fatura oluştur
+                            if (XtraMessageBox.Show($"Ödeme tamamlandı! Toplam peşin: {_aktifHareket.PesinAlinan:N2} TL\n\nFatura oluşturmak ister misiniz?", "Fatura", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                FaturaOlustur();
+                            }
+                        }
+                        else
+                        {
+                            XtraMessageBox.Show($"Ödeme alındı! Toplam peşin: {_aktifHareket.PesinAlinan:N2} TL\nKalan: {yeniKalan:N2} TL", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        
                         MasaDetaylariniYukle();
                     }
                     else
@@ -719,6 +741,69 @@ namespace GameCenterAI.WinForms
                 {
                     XtraMessageBox.Show($"Masa silme işlemi sırasında hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Creates an invoice for the completed transaction.
+        /// </summary>
+        private void FaturaOlustur()
+        {
+            try
+            {
+                if (_aktifHareket == null)
+                {
+                    XtraMessageBox.Show("Aktif hareket bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Check if invoice already exists
+                Faturalar mevcutFatura = _faturaService.HareketIDyeGoreGetir(_aktifHareket.HareketID);
+                if (mevcutFatura != null)
+                {
+                    XtraMessageBox.Show($"Bu hareket için zaten fatura oluşturulmuş!\nFatura No: {mevcutFatura.FaturaNo}", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Calculate totals
+                decimal kullanimUcreti = _hareketService.UcretHesapla(_aktifHareket.HareketID);
+                decimal toplamTutar = kullanimUcreti + _aktifHareket.SiparisToplami;
+                decimal kdvOrani = 20; // %20 KDV
+                decimal kdvTutari = toplamTutar * (kdvOrani / 100);
+                decimal genelToplam = toplamTutar + kdvTutari;
+
+                // Create invoice
+                Faturalar fatura = new Faturalar
+                {
+                    HareketID = _aktifHareket.HareketID,
+                    FaturaNo = _faturaService.FaturaNoOlustur(),
+                    FaturaTarihi = DateTime.Now,
+                    ToplamTutar = toplamTutar,
+                    KdvOrani = kdvOrani,
+                    KdvTutari = kdvTutari,
+                    GenelToplam = genelToplam,
+                    Durum = "Aktif",
+                    Notlar = $"Masa: {_seciliMasa?.MasaAdi ?? "Bilinmiyor"}"
+                };
+
+                int faturaID = _faturaService.Olustur(fatura);
+
+                if (faturaID > 0)
+                {
+                    string mesaj = $"✅ Fatura başarıyla oluşturuldu!\n\n";
+                    mesaj += $"Fatura No: {fatura.FaturaNo}\n";
+                    mesaj += $"Tarih: {fatura.FaturaTarihi:dd.MM.yyyy HH:mm}\n";
+                    mesaj += $"Ara Toplam: {toplamTutar:N2} TL\n";
+                    mesaj += $"KDV (%{kdvOrani}): {kdvTutari:N2} TL\n";
+                    mesaj += $"Genel Toplam: {genelToplam:N2} TL\n\n";
+                    mesaj += $"Fatura detaylarını görmek için Faturalar menüsünü kullanabilirsiniz.";
+
+                    XtraMessageBox.Show(mesaj, "🎉 Fatura Oluşturuldu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show($"Fatura oluşturma işlemi sırasında hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
