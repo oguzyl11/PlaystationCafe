@@ -81,6 +81,7 @@ namespace GameCenterAI.WinForms
             this._txtSifre.Properties.PasswordChar = '●';
             this._txtSifre.Size = new System.Drawing.Size(300, 30);
             this._txtSifre.TabIndex = 1;
+            this._txtSifre.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtSifre_KeyDown);
             // 
             // _btnGiris
             // 

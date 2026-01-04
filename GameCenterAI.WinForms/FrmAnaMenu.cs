@@ -16,6 +16,8 @@ namespace GameCenterAI.WinForms
         private Uyeler _aktifUye;
         private System.Windows.Forms.Timer _istatistikTimer;
         private SRapor _raporService;
+        private System.Windows.Forms.Timer _istatistikTimer;
+        private SRapor _raporService;
 
         /// <summary>
         /// Initializes a new instance of the FrmAnaMenu class.
@@ -25,10 +27,40 @@ namespace GameCenterAI.WinForms
         {
             InitializeComponent();
             _aktifUye = uye;
+            _raporService = new SRapor();
+            InitializeIstatistikTimer();
             this.Load += FrmAnaMenu_Load;
         }
 
         private FrmMasalar _frmMasalar;
+
+        /// <summary>
+        /// Initializes the statistics update timer.
+        /// </summary>
+        private void InitializeIstatistikTimer()
+        {
+            _istatistikTimer = new System.Windows.Forms.Timer();
+            _istatistikTimer.Interval = 30000; // 30 saniyede bir güncelle
+            _istatistikTimer.Tick += IstatistikTimer_Tick;
+            _istatistikTimer.Start();
+        }
+
+        /// <summary>
+        /// Handles the statistics timer tick event.
+        /// </summary>
+        private void IstatistikTimer_Tick(object sender, EventArgs e)
+        {
+            // İstatistikleri güncelle (arka planda)
+            try
+            {
+                // Burada istatistik kartlarını güncelleyebiliriz
+                // Şimdilik sessizce çalışıyor
+            }
+            catch
+            {
+                // Hata durumunda sessizce devam et
+            }
+        }
 
         /// <summary>
         /// Handles the form load event - opens Masalar form automatically.
