@@ -5,6 +5,7 @@ using DevExpress.XtraBars;
 using DevExpress.XtraBars.Ribbon;
 using DevExpress.XtraEditors;
 using GameCenterAI.Entity;
+using GameCenterAI.Service;
 
 namespace GameCenterAI.WinForms
 {
@@ -14,8 +15,6 @@ namespace GameCenterAI.WinForms
     public partial class FrmAnaMenu : DevExpress.XtraBars.Ribbon.RibbonForm
     {
         private Uyeler _aktifUye;
-        private System.Windows.Forms.Timer _istatistikTimer;
-        private SRapor _raporService;
         private System.Windows.Forms.Timer _istatistikTimer;
         private SRapor _raporService;
 
