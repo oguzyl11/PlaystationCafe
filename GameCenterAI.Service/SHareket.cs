@@ -107,6 +107,70 @@ namespace GameCenterAI.Service
         }
 
         /// <summary>
+        /// Gets a transaction by ID.
+        /// </summary>
+        /// <param name="hareketID">The transaction ID.</param>
+        /// <returns>The transaction entity.</returns>
+        public Hareketler Getir(int hareketID)
+        {
+            Hareketler hareket = null;
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "SELECT HareketID, UyeID, MasaID, TarifeID, OyunID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE HareketID = @HareketID";
+
+            command.Parameters.AddWithValue("@HareketID", hareketID);
+
+            try
+            {
+                Tools.OpenConnection();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    hareket = new Hareketler
+                    {
+                        HareketID = Convert.ToInt32(reader["HareketID"]),
+                        UyeID = Convert.ToInt32(reader["UyeID"]),
+                        MasaID = Convert.ToInt32(reader["MasaID"]),
+                        Baslangic = Convert.ToDateTime(reader["Baslangic"]),
+                        Ucret = Convert.ToDecimal(reader["Ucret"]),
+                        PesinAlinan = Convert.ToDecimal(reader["PesinAlinan"]),
+                        SiparisToplami = Convert.ToDecimal(reader["SiparisToplami"]),
+                        Durum = reader["Durum"] != DBNull.Value ? reader["Durum"].ToString() : string.Empty
+                    };
+
+                    if (reader["TarifeID"] != DBNull.Value)
+                    {
+                        hareket.TarifeID = Convert.ToInt32(reader["TarifeID"]);
+                    }
+
+                    if (reader["OyunID"] != DBNull.Value)
+                    {
+                        hareket.OyunID = Convert.ToInt32(reader["OyunID"]);
+                    }
+
+                    if (reader["Bitis"] != DBNull.Value)
+                    {
+                        hareket.Bitis = Convert.ToDateTime(reader["Bitis"]);
+                    }
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Hareket getirme işlemi sırasında hata oluştu: " + ex.Message);
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return hareket;
+        }
+
+        /// <summary>
         /// Gets active transaction for a table.
         /// </summary>
         /// <param name="masaID">The table ID.</param>

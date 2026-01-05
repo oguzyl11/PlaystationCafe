@@ -24,6 +24,13 @@ namespace GameCenterAI.Interface
         bool Bitir(int hareketID);
 
         /// <summary>
+        /// Gets a transaction by ID.
+        /// </summary>
+        /// <param name="hareketID">The transaction ID.</param>
+        /// <returns>The transaction entity.</returns>
+        Hareketler Getir(int hareketID);
+
+        /// <summary>
         /// Gets active transaction for a table.
         /// </summary>
         /// <param name="masaID">The table ID.</param>
