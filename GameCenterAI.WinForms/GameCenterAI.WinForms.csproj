@@ -202,6 +202,12 @@
     <Compile Include="FrmMacSonucu.Designer.cs">
       <DependentUpon>FrmMacSonucu.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmFaturalar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmFaturalar.Designer.cs">
+      <DependentUpon>FrmFaturalar.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FrmGiris.resx">
       <DependentUpon>FrmGiris.cs</DependentUpon>
@@ -253,6 +259,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmMacSonucu.resx">
       <DependentUpon>FrmMacSonucu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmFaturalar.resx">
+      <DependentUpon>FrmFaturalar.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
