@@ -35,3 +35,4 @@ Eğer yüz tanıma özelliğini kullanmak istiyorsanız, .NET Framework ile uyum
 ## Öneri
 Şimdilik EmguCV referanslarını kaldırıp uygulamayı EmguCV olmadan çalıştırın. İleride yüz tanıma özelliğine ihtiyaç duyarsanız, projeyi .NET 6+ veya .NET Core'ya geçirmeyi düşünün.
 
+

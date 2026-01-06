@@ -10,10 +10,10 @@ using GameCenterAI.DataAccess;
 using GameCenterAI.Entity;
 using GameCenterAI.Interface;
 
-// EmguCV namespaces - uncomment after installing EmguCV NuGet packages
-// using Emgu.CV;
-// using Emgu.CV.CvEnum;
-// using Emgu.CV.Structure;
+// EmguCV namespaces
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 
 namespace GameCenterAI.Service
 {
@@ -26,12 +26,9 @@ namespace GameCenterAI.Service
     /// </summary>
     public class SAiService : IAiService, IDisposable
     {
-        // EmguCV objects - uncomment after installing EmguCV
-        // private Emgu.CV.Capture _camera;
-        // private Emgu.CV.CascadeClassifier _faceClassifier;
-        // Note: These fields are reserved for future EmguCV implementation
-        // private object _camera;
-        // private object _faceClassifier;
+        // EmguCV objects
+        private VideoCapture _camera;
+        private CascadeClassifier _faceClassifier;
         /// <summary>
         /// Performs face recognition from an image file path.
         /// This is a placeholder implementation. In production, this would use EmguCV for actual face recognition.
@@ -140,21 +137,104 @@ namespace GameCenterAI.Service
         /// <returns>The detected face image as a byte array, or null if no face is detected.</returns>
         public byte[] CaptureAndDetectFace()
         {
-            // NOTE: This method requires EmguCV NuGet packages to be installed
-            // Install-Package Emgu.CV
-            // Install-Package Emgu.CV.runtime.windows
-            // After installing, uncomment the EmguCV using statements at the top of this file
-            // and replace this method with the implementation from SAiService_EmguCV.cs
-            
-            throw new NotImplementedException(
-                "EmguCV kütüphanesi yüklü değil.\n\n" +
-                "Kurulum adımları:\n" +
-                "1. NuGet Package Manager'dan şu paketleri yükleyin:\n" +
-                "   - Install-Package Emgu.CV\n" +
-                "   - Install-Package Emgu.CV.runtime.windows\n" +
-                "2. SAiService.cs dosyasının başındaki EmguCV using direktiflerini uncomment edin\n" +
-                "3. SAiService_EmguCV.cs dosyasındaki kodları SAiService.cs'e kopyalayın\n" +
-                "4. haarcascade_frontalface_default.xml dosyasını uygulama klasörüne kopyalayın");
+            try
+            {
+                // Initialize camera if not already initialized
+                if (_camera == null)
+                {
+                    _camera = new VideoCapture(0);
+                    if (!_camera.IsOpened)
+                    {
+                        throw new Exception("Kamera açılamadı. Lütfen kameranın bağlı olduğundan ve başka bir uygulama tarafından kullanılmadığından emin olun.");
+                    }
+                }
+
+                // Load face cascade classifier
+                if (_faceClassifier == null)
+                {
+                    string cascadePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "haarcascade_frontalface_default.xml");
+                    
+                    if (!File.Exists(cascadePath))
+                    {
+                        cascadePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameCenterAI", "haarcascade_frontalface_default.xml");
+                        
+                        if (!File.Exists(cascadePath))
+                        {
+                            // Try to find in EmguCV installation directory
+                            string emguPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "x64", "haarcascade_frontalface_default.xml");
+                            if (File.Exists(emguPath))
+                            {
+                                cascadePath = emguPath;
+                            }
+                            else
+                            {
+                                throw new FileNotFoundException(
+                                    "haarcascade_frontalface_default.xml dosyası bulunamadı.\n\n" +
+                                    "Lütfen dosyayı şu konumlardan birine kopyalayın:\n" +
+                                    "1. " + AppDomain.CurrentDomain.BaseDirectory + "\n" +
+                                    "2. " + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameCenterAI") + "\n\n" +
+                                    "Dosyayı şu adresten indirebilirsiniz:\n" +
+                                    "https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml");
+                            }
+                        }
+                    }
+
+                    _faceClassifier = new CascadeClassifier(cascadePath);
+                }
+
+                // Capture frame from camera
+                Mat frame = new Mat();
+                if (!_camera.Read(frame) || frame.IsEmpty)
+                {
+                    frame.Dispose();
+                    return null;
+                }
+
+                // Convert to grayscale for face detection
+                Mat grayFrame = new Mat();
+                CvInvoke.CvtColor(frame, grayFrame, ColorConversion.Bgr2Gray);
+
+                // Detect faces
+                Rectangle[] faces = _faceClassifier.DetectMultiScale(
+                    grayFrame,
+                    1.1,
+                    10,
+                    new Size(20, 20));
+
+                if (faces.Length == 0)
+                {
+                    grayFrame.Dispose();
+                    frame.Dispose();
+                    return null;
+                }
+
+                // Get the largest face
+                Rectangle largestFace = faces.OrderByDescending(f => f.Width * f.Height).First();
+
+                // Extract face region
+                Mat faceRegion = new Mat(grayFrame, largestFace);
+
+                // Convert to byte array
+                byte[] faceBytes = null;
+                using (Bitmap faceBitmap = faceRegion.ToBitmap())
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        faceBitmap.Save(ms, ImageFormat.Jpeg);
+                        faceBytes = ms.ToArray();
+                    }
+                }
+
+                grayFrame.Dispose();
+                faceRegion.Dispose();
+                frame.Dispose();
+
+                return faceBytes;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Yüz yakalama işlemi sırasında hata oluştu: " + ex.Message, ex);
+            }
         }
 
         /// <summary>
@@ -170,27 +250,71 @@ namespace GameCenterAI.Service
                 return false;
             }
 
-            // NOTE: This method requires EmguCV NuGet packages to be installed
-            // After installing EmguCV, replace this method with the implementation from SAiService_EmguCV.cs
-            
-            // Fallback: Simple byte array comparison (not accurate, but works without EmguCV)
-            if (storedFace.Length != currentFace.Length)
+            try
             {
-                return false;
-            }
-            
-            // Simple similarity check
-            int matches = 0;
-            for (int i = 0; i < storedFace.Length && i < currentFace.Length; i++)
-            {
-                if (Math.Abs(storedFace[i] - currentFace[i]) < 10)
+                // Convert byte arrays to Bitmap first, then to EmguCV Mat
+                Bitmap storedBitmap;
+                Bitmap currentBitmap;
+
+                using (MemoryStream ms1 = new MemoryStream(storedFace))
                 {
-                    matches++;
+                    storedBitmap = new Bitmap(ms1);
                 }
+
+                using (MemoryStream ms2 = new MemoryStream(currentFace))
+                {
+                    currentBitmap = new Bitmap(ms2);
+                }
+
+                // Convert to EmguCV Mat
+                Mat storedMat = storedBitmap.ToMat();
+                Mat currentMat = currentBitmap.ToMat();
+
+                // Resize images to same size for comparison
+                Mat resizedStored = new Mat();
+                Mat resizedCurrent = new Mat();
+                CvInvoke.Resize(storedMat, resizedStored, new Size(100, 100));
+                CvInvoke.Resize(currentMat, resizedCurrent, new Size(100, 100));
+
+                // Convert to grayscale
+                Mat grayStored = new Mat();
+                Mat grayCurrent = new Mat();
+                CvInvoke.CvtColor(resizedStored, grayStored, ColorConversion.Bgr2Gray);
+                CvInvoke.CvtColor(resizedCurrent, grayCurrent, ColorConversion.Bgr2Gray);
+
+                // Calculate histogram comparison
+                Mat histStored = new Mat();
+                Mat histCurrent = new Mat();
+                Mat[] imagesStored = { grayStored };
+                Mat[] imagesCurrent = { grayCurrent };
+                int[] channels = { 0 };
+                int[] histSize = { 256 };
+                float[] ranges = { 0, 256 };
+
+                CvInvoke.CalcHist(imagesStored, channels, new Mat(), histStored, histSize, ranges, false);
+                CvInvoke.CalcHist(imagesCurrent, channels, new Mat(), histCurrent, histSize, ranges, false);
+
+                double similarity = CvInvoke.CompareHist(histStored, histCurrent, HistogramCompMethod.Correl);
+
+                // Cleanup
+                storedMat.Dispose();
+                currentMat.Dispose();
+                resizedStored.Dispose();
+                resizedCurrent.Dispose();
+                grayStored.Dispose();
+                grayCurrent.Dispose();
+                histStored.Dispose();
+                histCurrent.Dispose();
+                storedBitmap.Dispose();
+                currentBitmap.Dispose();
+
+                // Threshold for match (0.7 = 70% similarity)
+                return similarity > 0.7;
             }
-            
-            double similarity = (double)matches / storedFace.Length;
-            return similarity > 0.7;
+            catch (Exception ex)
+            {
+                throw new Exception("Yüz karşılaştırma işlemi sırasında hata oluştu: " + ex.Message, ex);
+            }
         }
 
         /// <summary>
@@ -748,8 +872,6 @@ namespace GameCenterAI.Service
         /// </summary>
         public void Dispose()
         {
-            // NOTE: EmguCV Dispose implementation (uncomment after installing EmguCV)
-            /*
             if (_camera != null)
             {
                 _camera.Dispose();
@@ -761,7 +883,6 @@ namespace GameCenterAI.Service
                 _faceClassifier.Dispose();
                 _faceClassifier = null;
             }
-            */
         }
     }
 
