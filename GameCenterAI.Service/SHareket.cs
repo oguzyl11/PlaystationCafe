@@ -200,8 +200,9 @@ namespace GameCenterAI.Service
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
-            command.CommandText = "SELECT HareketID, UyeID, MasaID, TarifeID, OyunID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE MasaID = @MasaID AND Durum = 'Aktif'";
-
+            
+            // Temel kolonları seç (OyunID ve TarifeID opsiyonel)
+            command.CommandText = "SELECT HareketID, UyeID, MasaID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE MasaID = @MasaID AND Durum = 'Aktif'";
             command.Parameters.AddWithValue("@MasaID", masaID);
 
             try
@@ -223,16 +224,6 @@ namespace GameCenterAI.Service
                         Durum = reader["Durum"] != DBNull.Value ? reader["Durum"].ToString() : string.Empty
                     };
 
-                    if (reader["TarifeID"] != DBNull.Value)
-                    {
-                        hareket.TarifeID = Convert.ToInt32(reader["TarifeID"]);
-                    }
-
-                    if (reader["OyunID"] != DBNull.Value)
-                    {
-                        hareket.OyunID = Convert.ToInt32(reader["OyunID"]);
-                    }
-
                     if (reader["Bitis"] != DBNull.Value)
                     {
                         hareket.Bitis = Convert.ToDateTime(reader["Bitis"]);
@@ -240,6 +231,37 @@ namespace GameCenterAI.Service
                 }
 
                 reader.Close();
+                
+                // Opsiyonel kolonları ayrı sorgu ile oku (varsa)
+                if (hareket != null)
+                {
+                    try
+                    {
+                        SqlCommand optCommand = new SqlCommand();
+                        optCommand.Connection = Tools.Connection;
+                        optCommand.CommandType = CommandType.Text;
+                        optCommand.CommandText = "SELECT TarifeID, OyunID FROM Hareketler WHERE HareketID = @HareketID";
+                        optCommand.Parameters.AddWithValue("@HareketID", hareket.HareketID);
+                        
+                        SqlDataReader optReader = optCommand.ExecuteReader();
+                        if (optReader.Read())
+                        {
+                            if (optReader["TarifeID"] != DBNull.Value)
+                            {
+                                hareket.TarifeID = Convert.ToInt32(optReader["TarifeID"]);
+                            }
+                            if (optReader["OyunID"] != DBNull.Value)
+                            {
+                                hareket.OyunID = Convert.ToInt32(optReader["OyunID"]);
+                            }
+                        }
+                        optReader.Close();
+                    }
+                    catch
+                    {
+                        // Opsiyonel kolonlar yoksa sessizce devam et
+                    }
+                }
             }
             catch (Exception ex)
             {
