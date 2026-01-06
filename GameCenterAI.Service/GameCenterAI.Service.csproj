@@ -130,6 +130,7 @@
     <Compile Include="SHareket.cs" />
     <Compile Include="SRapor.cs" />
     <Compile Include="SFatura.cs" />
+    <Compile Include="SOyunlar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

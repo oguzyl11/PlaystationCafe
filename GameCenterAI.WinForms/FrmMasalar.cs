@@ -25,6 +25,7 @@ namespace GameCenterAI.WinForms
         private SUrun _urunService;
         private SAiService _aiService;
         private SFatura _faturaService;
+        private SOyunlar _oyunService;
         private System.Windows.Forms.Timer _timer;
         
         // Sol Panel - Masa Detayları
@@ -67,6 +68,7 @@ namespace GameCenterAI.WinForms
             _urunService = new SUrun();
             _aiService = new SAiService();
             _faturaService = new SFatura();
+            _oyunService = new SOyunlar();
             
             InitializeTimer();
             
@@ -110,17 +112,24 @@ namespace GameCenterAI.WinForms
             {
                 try
                 {
-                    int gecenSure = _hareketService.GecenSureGetir(_aktifHareket.HareketID);
-                    decimal ucret = _hareketService.UcretHesapla(_aktifHareket.HareketID);
+                    string hataSure = _hareketService.GecenSureGetir(_aktifHareket.HareketID, out int gecenSure);
+                    string hataUcret = _hareketService.UcretHesapla(_aktifHareket.HareketID, out decimal ucret);
                     
-                    _txtGecenSure.Text = $"{gecenSure} Dk.";
-                    _txtKullanimUcreti.Text = ucret.ToString("N2");
+                    if (hataSure == null)
+                    {
+                        _txtGecenSure.Text = $"{gecenSure} Dk.";
+                    }
+                    
+                    if (hataUcret == null)
+                    {
+                        _txtKullanimUcreti.Text = ucret.ToString("N2");
+                    }
                     
                     // Kalan süre hesaplama (eğer tarife varsa)
                     if (_aktifHareket.TarifeID.HasValue)
                     {
-                        var tarife = _tarifeService.Getir(_aktifHareket.TarifeID.Value);
-                        if (tarife != null && tarife.SureSiniri > 0)
+                        string hataTarife = _tarifeService.Getir(_aktifHareket.TarifeID.Value, out Tarifeler tarife);
+                        if (hataTarife == null && tarife != null && tarife.SureSiniri > 0)
                         {
                             int kalanSure = tarife.SureSiniri - gecenSure;
                             _txtKalanSure.Text = kalanSure > 0 ? $"{kalanSure} Dk." : "0 Dk.";
@@ -128,8 +137,11 @@ namespace GameCenterAI.WinForms
                     }
                     
                     // Toplam hesaplama
-                    decimal toplam = ucret + _aktifHareket.SiparisToplami - _aktifHareket.PesinAlinan;
-                    _lblToplam.Text = $"Toplam: {toplam:N2} TL";
+                    if (hataUcret == null)
+                    {
+                        decimal toplam = ucret + _aktifHareket.SiparisToplami - _aktifHareket.PesinAlinan;
+                        _lblToplam.Text = $"Toplam: {toplam:N2} TL";
+                    }
                 }
                 catch
                 {
@@ -147,19 +159,27 @@ namespace GameCenterAI.WinForms
             {
                 _tileGroupMasalar.Items.Clear();
 
-                List<Masalar> masalar = _masaService.GetAllMasalar();
+                string hata = _masaService.GetAllMasalar(out List<Masalar> masalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Masalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 foreach (Masalar masa in masalar)
                 {
                     DevExpress.XtraEditors.TileItem tileItem = new DevExpress.XtraEditors.TileItem();
                     
                     // Aktif hareket kontrolü
-                    Hareketler aktifHareket = _hareketService.GetirAktifByMasaID(masa.MasaID);
-                    if (aktifHareket != null)
+                    string hataAktif = _hareketService.GetirAktifByMasaID(masa.MasaID, out Hareketler aktifHareket);
+                    if (hataAktif == null && aktifHareket != null)
                     {
-                        decimal ucret = _hareketService.UcretHesapla(aktifHareket.HareketID);
+                        string hataUcretTile = _hareketService.UcretHesapla(aktifHareket.HareketID, out decimal ucret);
                         tileItem.Text = masa.MasaAdi;
-                        tileItem.Text2 = $"{ucret:N2} TL";
+                        if (hataUcretTile == null)
+                        {
+                            tileItem.Text2 = $"{ucret:N2} TL";
+                        }
                         masa.Durum = "Dolu";
                     }
                     else
@@ -171,34 +191,48 @@ namespace GameCenterAI.WinForms
                     
                     tileItem.Tag = masa;
 
-                    // Set color and style based on status with modern gradient effect
+                    // Modern design with gradient effects and shadows
                     if (masa.Durum == "Dolu" || masa.Durum == "Full" || masa.Durum == "1")
                     {
-                        // Modern Red gradient for occupied - with shadow effect
-                        tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+                        // Modern Red gradient for occupied - Premium look
+                        tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(231, 76, 60);
                         tileItem.AppearanceItem.Normal.ForeColor = System.Drawing.Color.White;
-                        tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(200, 35, 51);
+                        tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(192, 57, 43);
+                        
+                        // Pressed effect - darker red
+                        tileItem.AppearanceItem.Pressed.BackColor = System.Drawing.Color.FromArgb(192, 57, 43);
+                        tileItem.AppearanceItem.Pressed.ForeColor = System.Drawing.Color.White;
+                        tileItem.AppearanceItem.Pressed.BorderColor = System.Drawing.Color.FromArgb(169, 50, 38);
                     }
                     else
                     {
-                        // Modern Green gradient for available - with shadow effect
-                        tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+                        // Modern Green gradient for available - Premium look
+                        tileItem.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(46, 213, 115);
                         tileItem.AppearanceItem.Normal.ForeColor = System.Drawing.Color.White;
-                        tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(30, 150, 60);
+                        tileItem.AppearanceItem.Normal.BorderColor = System.Drawing.Color.FromArgb(39, 174, 96);
+                        
+                        // Pressed effect - darker green
+                        tileItem.AppearanceItem.Pressed.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
+                        tileItem.AppearanceItem.Pressed.ForeColor = System.Drawing.Color.White;
+                        tileItem.AppearanceItem.Pressed.BorderColor = System.Drawing.Color.FromArgb(33, 150, 83);
                     }
                     
-                    // Modern tile style - larger font with shadow effect
-                    tileItem.AppearanceItem.Normal.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+                    // Modern typography - Premium font with better spacing
+                    tileItem.AppearanceItem.Normal.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
                     tileItem.AppearanceItem.Normal.Options.UseFont = true;
                     tileItem.AppearanceItem.Normal.Options.UseBorderColor = true;
+                    tileItem.AppearanceItem.Normal.Options.UseBackColor = true;
+                    tileItem.AppearanceItem.Normal.Options.UseForeColor = true;
                     
                     // Text alignment - center both horizontally and vertically
                     tileItem.AppearanceItem.Normal.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
                     tileItem.AppearanceItem.Normal.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
                     tileItem.AppearanceItem.Normal.Options.UseTextOptions = true;
                     
-                    // Add shadow effect (using border)
-                    tileItem.AppearanceItem.Normal.Options.UseBorderColor = true;
+                    // Enable all appearance options for smooth transitions
+                    tileItem.AppearanceItem.Pressed.Options.UseBackColor = true;
+                    tileItem.AppearanceItem.Pressed.Options.UseForeColor = true;
+                    tileItem.AppearanceItem.Pressed.Options.UseBorderColor = true;
 
                     tileItem.ItemClick += TileItem_ItemClick;
                     _tileGroupMasalar.Items.Add(tileItem);
@@ -213,11 +247,20 @@ namespace GameCenterAI.WinForms
         /// <summary>
         /// Loads tariffs into the combo box.
         /// </summary>
+        /// <summary>
+        /// Loads tariffs into the combo box.
+        /// </summary>
         private void LoadTarifeler()
         {
             try
             {
-                List<Tarifeler> tarifeler = _tarifeService.Listele();
+                string hata = _tarifeService.Listele(out List<Tarifeler> tarifeler);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Tarifeler yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
                 _cmbTarifeler.Properties.Items.Clear();
                 _cmbTarifeler.Properties.Items.Add("Tarife Seçiniz");
                 
@@ -257,14 +300,25 @@ namespace GameCenterAI.WinForms
             _lblMasaAdi.Text = _seciliMasa.MasaAdi;
             
             // Aktif hareket kontrolü
-            _aktifHareket = _hareketService.GetirAktifByMasaID(_seciliMasa.MasaID);
+            string hataAktif = _hareketService.GetirAktifByMasaID(_seciliMasa.MasaID, out _aktifHareket);
+            if (hataAktif != null)
+            {
+                _aktifHareket = null;
+            }
             
             if (_aktifHareket != null)
             {
                 // Müşteri bilgisi
                 SUyeler uyeService = new SUyeler();
-                Uyeler uye = uyeService.Getir(_aktifHareket.UyeID);
-                _txtMusteri.Text = uye != null ? uye.AdSoyad : $"Üye ID: {_aktifHareket.UyeID}";
+                string hata = uyeService.Getir(_aktifHareket.UyeID, out Uyeler uye);
+                if (hata != null)
+                {
+                    _txtMusteri.Text = $"Üye ID: {_aktifHareket.UyeID}";
+                }
+                else
+                {
+                    _txtMusteri.Text = uye != null ? uye.AdSoyad : $"Üye ID: {_aktifHareket.UyeID}";
+                }
                 _txtBaslamaSaati.Text = _aktifHareket.Baslangic.ToString("HH:mm:ss");
                 
                 // Oyun bilgisi (AI tahmini veya kayıtlı)
@@ -286,7 +340,11 @@ namespace GameCenterAI.WinForms
                             _lblOyun.Text = $"🎮 {oyun.OyunAdi} (Tahmin)";
                             _lblOyun.Visible = true;
                             // Tahmin edilen oyunu kaydet
-                            _hareketService.OyunGuncelle(_aktifHareket.HareketID, tahminEdilenOyunID.Value);
+                            string hataOyun = _hareketService.OyunGuncelle(_aktifHareket.HareketID, tahminEdilenOyunID.Value);
+                            if (hataOyun != null)
+                            {
+                                // Hata olsa bile devam et
+                            }
                         }
                     }
                     else
@@ -296,19 +354,25 @@ namespace GameCenterAI.WinForms
                     }
                 }
                 
-                int gecenSure = _hareketService.GecenSureGetir(_aktifHareket.HareketID);
-                _txtGecenSure.Text = $"{gecenSure} Dk.";
+                string hataSureDetay = _hareketService.GecenSureGetir(_aktifHareket.HareketID, out int gecenSure);
+                if (hataSureDetay == null)
+                {
+                    _txtGecenSure.Text = $"{gecenSure} Dk.";
+                }
                 
                 // Tarife bilgisi
                 if (_aktifHareket.TarifeID.HasValue)
                 {
-                    var tarife = _tarifeService.Getir(_aktifHareket.TarifeID.Value);
-                    if (tarife != null)
+                    string hataTarifeDetay = _tarifeService.Getir(_aktifHareket.TarifeID.Value, out Tarifeler tarife);
+                    if (hataTarifeDetay == null && tarife != null)
                     {
                         _txtTarife.Text = tarife.TarifeAdi;
                         _txtSureSiniri.Text = $"{tarife.SureSiniri} Dk.";
-                        int kalanSure = tarife.SureSiniri - gecenSure;
-                        _txtKalanSure.Text = kalanSure > 0 ? $"{kalanSure} Dk." : "0 Dk.";
+                        if (hataSureDetay == null)
+                        {
+                            int kalanSure = tarife.SureSiniri - gecenSure;
+                            _txtKalanSure.Text = kalanSure > 0 ? $"{kalanSure} Dk." : "0 Dk.";
+                        }
                     }
                 }
                 else
@@ -318,13 +382,19 @@ namespace GameCenterAI.WinForms
                     _txtKalanSure.Text = "-";
                 }
                 
-                decimal ucret = _hareketService.UcretHesapla(_aktifHareket.HareketID);
-                _txtKullanimUcreti.Text = ucret.ToString("N2");
+                string hataUcretDetay = _hareketService.UcretHesapla(_aktifHareket.HareketID, out decimal ucret);
+                if (hataUcretDetay == null)
+                {
+                    _txtKullanimUcreti.Text = ucret.ToString("N2");
+                }
                 _txtSiparisToplami.Text = _aktifHareket.SiparisToplami.ToString("N2");
                 _txtPesinAlinan.Text = _aktifHareket.PesinAlinan.ToString("N2");
                 
-                decimal toplam = ucret + _aktifHareket.SiparisToplami - _aktifHareket.PesinAlinan;
-                _lblToplam.Text = $"Toplam: {toplam:N2} TL";
+                if (hataUcretDetay == null)
+                {
+                    decimal toplam = ucret + _aktifHareket.SiparisToplami - _aktifHareket.PesinAlinan;
+                    _lblToplam.Text = $"Toplam: {toplam:N2} TL";
+                }
                 
                 _btnMasaAcKapat.Enabled = true;
                 _btnMasaAcKapat.Text = "■ Masa Kapat";
@@ -362,43 +432,16 @@ namespace GameCenterAI.WinForms
         /// <summary>
         /// Gets a game by ID from the database.
         /// </summary>
-        /// <param name="oyunID">The game ID.</param>
+        /// <param name="oyunId">The game ID.</param>
         /// <returns>The game entity, or null if not found.</returns>
-        private Oyunlar OyunGetir(int oyunID)
+        private Oyunlar OyunGetir(int oyunId)
         {
-            try
-            {
-                System.Data.SqlClient.SqlCommand command = new System.Data.SqlClient.SqlCommand();
-                command.Connection = GameCenterAI.DataAccess.Tools.Connection;
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = "SELECT OyunID, OyunAdi, Kategori, Platform FROM Oyunlar WHERE OyunID = @OyunID";
-
-                command.Parameters.AddWithValue("@OyunID", oyunID);
-
-                GameCenterAI.DataAccess.Tools.OpenConnection();
-                System.Data.SqlClient.SqlDataReader reader = command.ExecuteReader();
-
-                Oyunlar oyun = null;
-                if (reader.Read())
-                {
-                    oyun = new Oyunlar
-                    {
-                        OyunID = Convert.ToInt32(reader["OyunID"]),
-                        OyunAdi = reader["OyunAdi"].ToString(),
-                        Kategori = reader["Kategori"] != DBNull.Value ? reader["Kategori"].ToString() : string.Empty,
-                        Platform = reader["Platform"] != DBNull.Value ? reader["Platform"].ToString() : string.Empty
-                    };
-                }
-
-                reader.Close();
-                GameCenterAI.DataAccess.Tools.CloseConnection();
-
-                return oyun;
-            }
-            catch
+            string hata = _oyunService.Getir(oyunId, out Oyunlar oyun);
+            if (hata != null)
             {
                 return null;
             }
+            return oyun;
         }
 
         /// <summary>
@@ -420,17 +463,25 @@ namespace GameCenterAI.WinForms
                 {
                     try
                     {
-                        bool result = _hareketService.Bitir(_aktifHareket.HareketID);
+                        string hataBitir = _hareketService.Bitir(_aktifHareket.HareketID);
                         
-                        if (result)
+                        if (hataBitir == null)
                         {
                             // Masa durumunu "Boş" olarak güncelle
-                            _masaService.DurumGuncelle(_seciliMasa.MasaID, "Boş");
+                            string hataDurum = _masaService.DurumGuncelle(_seciliMasa.MasaID, "Boş");
+                            if (hataDurum != null)
+                            {
+                                XtraMessageBox.Show($"Masa durumu güncellenirken hata oluştu: {hataDurum}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                             
                             XtraMessageBox.Show("Masa kapatıldı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             _aktifHareket = null;
                             LoadMasalar();
                             MasaDetaylariniYukle();
+                        }
+                        else
+                        {
+                            XtraMessageBox.Show($"Masa kapatma işlemi sırasında hata oluştu: {hataBitir}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
@@ -459,7 +510,13 @@ namespace GameCenterAI.WinForms
 
                 try
                 {
-                    List<Tarifeler> tarifeler = _tarifeService.Listele();
+                    string hataTarifeListe = _tarifeService.Listele(out List<Tarifeler> tarifeler);
+                    if (hataTarifeListe != null)
+                    {
+                        XtraMessageBox.Show($"Tarifeler yüklenirken hata oluştu: {hataTarifeListe}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    
                     int tarifeIndex = _cmbTarifeler.SelectedIndex - 1;
                     
                     if (tarifeIndex < 0 || tarifeIndex >= tarifeler.Count)
@@ -494,22 +551,29 @@ namespace GameCenterAI.WinForms
                     {
                         // Saatlik ücreti dinamik fiyatla güncelle
                         decimal yeniSaatlikUcret = _seciliMasa.SaatlikUcret * dinamikCarpan;
-                        _masaService.Guncelle(new Masalar
+                        string hataGuncelle = _masaService.Guncelle(new Masalar
                         {
                             MasaID = _seciliMasa.MasaID,
                             MasaAdi = _seciliMasa.MasaAdi,
                             SaatlikUcret = yeniSaatlikUcret,
                             Durum = _seciliMasa.Durum
                         });
-                        XtraMessageBox.Show($"Yoğun saat nedeniyle saatlik ücret %{(dinamikCarpan - 1) * 100:F0} artırıldı: {yeniSaatlikUcret:N2} TL", "Dinamik Fiyatlandırma", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        if (hataGuncelle == null)
+                        {
+                            XtraMessageBox.Show($"Yoğun saat nedeniyle saatlik ücret %{(dinamikCarpan - 1) * 100:F0} artırıldı: {yeniSaatlikUcret:N2} TL", "Dinamik Fiyatlandırma", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
 
-                    int hareketID = _hareketService.Baslat(yeniHareket);
+                    string hataBaslat = _hareketService.Baslat(yeniHareket, out int hareketID);
                     
-                    if (hareketID > 0)
+                    if (hataBaslat == null && hareketID > 0)
                     {
                         // Masa durumunu "Dolu" olarak güncelle
-                        _masaService.DurumGuncelle(_seciliMasa.MasaID, "Dolu");
+                        string hataDurumDolu = _masaService.DurumGuncelle(_seciliMasa.MasaID, "Dolu");
+                        if (hataDurumDolu != null)
+                        {
+                            // Hata olsa bile devam et
+                        }
                         
                         // Upsell önerileri göster
                         var upsellOneriler = _aiService.UpsellOneriGetir(frmUyeSec.SecilenUye.UyeID, tahminEdilenOyunID);
@@ -568,7 +632,14 @@ namespace GameCenterAI.WinForms
 
             try
             {
-                decimal toplamUcret = _hareketService.UcretHesapla(_aktifHareket.HareketID) + _aktifHareket.SiparisToplami;
+                string hataUcretOdeme = _hareketService.UcretHesapla(_aktifHareket.HareketID, out decimal ucretOdeme);
+                if (hataUcretOdeme != null)
+                {
+                    XtraMessageBox.Show($"Ücret hesaplanırken hata oluştu: {hataUcretOdeme}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+                decimal toplamUcret = ucretOdeme + _aktifHareket.SiparisToplami;
                 decimal kalan = toplamUcret - _aktifHareket.PesinAlinan;
 
                 if (kalan <= 0)
@@ -589,10 +660,21 @@ namespace GameCenterAI.WinForms
                     if (decimal.TryParse(odemeStr, out decimal odemeMiktari))
                     {
                         _aktifHareket.PesinAlinan += odemeMiktari;
-                        _hareketService.PesinAlinanGuncelle(_aktifHareket.HareketID, _aktifHareket.PesinAlinan);
+                        string hataPesin = _hareketService.PesinAlinanGuncelle(_aktifHareket.HareketID, _aktifHareket.PesinAlinan);
+                        if (hataPesin != null)
+                        {
+                            XtraMessageBox.Show($"Peşin güncellenirken hata oluştu: {hataPesin}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
                         
                         // Güncel toplam hesapla
-                        decimal yeniKalan = (_hareketService.UcretHesapla(_aktifHareket.HareketID) + _aktifHareket.SiparisToplami) - _aktifHareket.PesinAlinan;
+                        string hataUcretKalan = _hareketService.UcretHesapla(_aktifHareket.HareketID, out decimal ucretKalan);
+                        if (hataUcretKalan != null)
+                        {
+                            XtraMessageBox.Show($"Ücret hesaplanırken hata oluştu: {hataUcretKalan}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        decimal yeniKalan = (ucretKalan + _aktifHareket.SiparisToplami) - _aktifHareket.PesinAlinan;
                         
                         if (yeniKalan <= 0)
                         {
@@ -634,12 +716,24 @@ namespace GameCenterAI.WinForms
 
             if (_cmbTarifeler.SelectedIndex > 0)
             {
-                List<Tarifeler> tarifeler = _tarifeService.Listele();
+                string hataListe = _tarifeService.Listele(out List<Tarifeler> tarifeler);
+                if (hataListe != null)
+                {
+                    XtraMessageBox.Show($"Tarifeler yüklenirken hata oluştu: {hataListe}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 if (_cmbTarifeler.SelectedIndex <= tarifeler.Count)
                 {
                     int yeniTarifeID = tarifeler[_cmbTarifeler.SelectedIndex - 1].TarifeID;
-                    _hareketService.TarifeGuncelle(_aktifHareket.HareketID, yeniTarifeID);
-                    XtraMessageBox.Show("Tarife güncellendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string hataTarife = _hareketService.TarifeGuncelle(_aktifHareket.HareketID, yeniTarifeID);
+                    if (hataTarife == null)
+                    {
+                        XtraMessageBox.Show("Tarife güncellendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        XtraMessageBox.Show($"Tarife güncellenirken hata oluştu: {hataTarife}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                     MasaDetaylariniYukle();
                 }
             }
@@ -654,12 +748,22 @@ namespace GameCenterAI.WinForms
             {
                 try
                 {
-                    List<Siparisler> siparisler = _siparisService.GetirByHareketID(_aktifHareket.HareketID);
+                    string hataSiparis = _siparisService.GetirByHareketID(_aktifHareket.HareketID, out List<Siparisler> siparisler);
+                    if (hataSiparis != null)
+                    {
+                        _gridControlSiparisDetay.DataSource = new List<SiparisDetaylar>();
+                        return;
+                    }
+                    
                     List<SiparisDetaylar> tumDetaylar = new List<SiparisDetaylar>();
                     
                     foreach (var siparis in siparisler)
                     {
-                        tumDetaylar.AddRange(_siparisService.GetDetaylar(siparis.SiparisID));
+                        string hataDetay = _siparisService.GetDetaylar(siparis.SiparisID, out List<SiparisDetaylar> detaylar);
+                        if (hataDetay == null)
+                        {
+                            tumDetaylar.AddRange(detaylar);
+                        }
                     }
                     
                     _gridControlSiparisDetay.DataSource = tumDetaylar;
@@ -713,8 +817,8 @@ namespace GameCenterAI.WinForms
             }
 
             // Aktif hareket kontrolü
-            Hareketler aktifHareket = _hareketService.GetirAktifByMasaID(_seciliMasa.MasaID);
-            if (aktifHareket != null)
+            string hataAktifSil = _hareketService.GetirAktifByMasaID(_seciliMasa.MasaID, out Hareketler aktifHareket);
+            if (hataAktifSil == null && aktifHareket != null)
             {
                 XtraMessageBox.Show("Bu masa şu anda kullanımda. Önce masayı kapatınız.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -724,17 +828,17 @@ namespace GameCenterAI.WinForms
             {
                 try
                 {
-                    bool result = _masaService.Sil(_seciliMasa.MasaID);
-                    if (result)
+                    string hata = _masaService.Sil(_seciliMasa.MasaID);
+                    if (hata != null)
+                    {
+                        XtraMessageBox.Show($"Masa silme işlemi sırasında hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
                     {
                         XtraMessageBox.Show("Masa silindi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         _seciliMasa = null;
                         LoadMasalar();
                         MasaDetaylariniYukle();
-                    }
-                    else
-                    {
-                        XtraMessageBox.Show("Masa silinemedi!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 catch (Exception ex)
@@ -758,25 +862,37 @@ namespace GameCenterAI.WinForms
                 }
 
                 // Check if invoice already exists
-                Faturalar mevcutFatura = _faturaService.HareketIDyeGoreGetir(_aktifHareket.HareketID);
-                if (mevcutFatura != null)
+                string hataMevcut = _faturaService.HareketIDyeGoreGetir(_aktifHareket.HareketID, out Faturalar mevcutFatura);
+                if (hataMevcut == null && mevcutFatura != null)
                 {
                     XtraMessageBox.Show($"Bu hareket için zaten fatura oluşturulmuş!\nFatura No: {mevcutFatura.FaturaNo}", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 // Calculate totals
-                decimal kullanimUcreti = _hareketService.UcretHesapla(_aktifHareket.HareketID);
+                string hataKullanimUcreti = _hareketService.UcretHesapla(_aktifHareket.HareketID, out decimal kullanimUcreti);
+                if (hataKullanimUcreti != null)
+                {
+                    kullanimUcreti = 0;
+                }
                 decimal toplamTutar = kullanimUcreti + _aktifHareket.SiparisToplami;
                 decimal kdvOrani = 20; // %20 KDV
                 decimal kdvTutari = toplamTutar * (kdvOrani / 100);
                 decimal genelToplam = toplamTutar + kdvTutari;
 
+                // Generate invoice number
+                string hataFaturaNo = _faturaService.FaturaNoOlustur(out string faturaNo);
+                if (hataFaturaNo != null)
+                {
+                    XtraMessageBox.Show($"Fatura numarası oluşturulurken hata oluştu: {hataFaturaNo}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 // Create invoice
                 Faturalar fatura = new Faturalar
                 {
                     HareketID = _aktifHareket.HareketID,
-                    FaturaNo = _faturaService.FaturaNoOlustur(),
+                    FaturaNo = faturaNo,
                     FaturaTarihi = DateTime.Now,
                     ToplamTutar = toplamTutar,
                     KdvOrani = kdvOrani,
@@ -786,9 +902,9 @@ namespace GameCenterAI.WinForms
                     Notlar = $"Masa: {_seciliMasa?.MasaAdi ?? "Bilinmiyor"}"
                 };
 
-                int faturaID = _faturaService.Olustur(fatura);
+                string hataOlustur = _faturaService.Olustur(fatura, out int faturaID);
 
-                if (faturaID > 0)
+                if (hataOlustur == null && faturaID > 0)
                 {
                     string mesaj = $"✅ Fatura başarıyla oluşturuldu!\n\n";
                     mesaj += $"Fatura No: {fatura.FaturaNo}\n";

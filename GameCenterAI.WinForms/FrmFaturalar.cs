@@ -56,7 +56,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                List<Faturalar> faturalar = _faturaService.TarihAraligindaGetir(_dateEditBaslangic.DateTime, _dateEditBitis.DateTime);
+                string hata = _faturaService.TarihAraligindaGetir(_dateEditBaslangic.DateTime, _dateEditBitis.DateTime, out List<Faturalar> faturalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Faturalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlFaturalar.DataSource = faturalar;
                 _gridViewFaturalar.PopulateColumns();
                 
@@ -110,14 +115,29 @@ namespace GameCenterAI.WinForms
             try
             {
                 int faturaID = Convert.ToInt32(_gridViewFaturalar.GetFocusedRowCellValue("FaturaID"));
-                Faturalar fatura = _faturaService.Getir(faturaID);
+                string hata = _faturaService.Getir(faturaID, out Faturalar fatura);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Fatura getirilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (fatura == null)
+                {
+                    XtraMessageBox.Show("Fatura bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 
                 if (fatura != null)
                 {
                     // Get transaction details
-                    Hareketler hareket = _hareketService.Getir(fatura.HareketID);
-                    Uyeler uye = hareket != null ? _uyeService.Getir(hareket.UyeID) : null;
-                    Masalar masa = hareket != null ? _masaService.Getir(hareket.MasaID) : null;
+                    string hataHareket = _hareketService.Getir(fatura.HareketID, out Hareketler hareket);
+                    Uyeler uye = null;
+                    Masalar masa = null;
+                    if (hataHareket == null && hareket != null)
+                    {
+                        string hataUye = _uyeService.Getir(hareket.UyeID, out uye);
+                        string hataMasa = _masaService.Getir(hareket.MasaID, out masa);
+                    }
 
                     // Show invoice details
                     string detay = $"📄 FATURA DETAYI\n\n";
@@ -176,7 +196,17 @@ namespace GameCenterAI.WinForms
             try
             {
                 int faturaID = Convert.ToInt32(_gridViewFaturalar.GetFocusedRowCellValue("FaturaID"));
-                Faturalar fatura = _faturaService.Getir(faturaID);
+                string hata = _faturaService.Getir(faturaID, out Faturalar fatura);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Fatura getirilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (fatura == null)
+                {
+                    XtraMessageBox.Show("Fatura bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 
                 if (fatura != null)
                 {

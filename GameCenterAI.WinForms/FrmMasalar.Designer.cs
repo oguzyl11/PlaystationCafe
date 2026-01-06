@@ -70,19 +70,23 @@ namespace GameCenterAI.WinForms
             // 
             // _tileControlMasalar
             // 
-            this._tileControlMasalar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._tileControlMasalar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this._tileControlMasalar.Groups.Add(this._tileGroupMasalar);
-            this._tileControlMasalar.Location = new System.Drawing.Point(300, 0);
+            this._tileControlMasalar.Location = new System.Drawing.Point(320, 0);
             this._tileControlMasalar.Name = "_tileControlMasalar";
-            this._tileControlMasalar.Size = new System.Drawing.Size(700, 800);
+            this._tileControlMasalar.Size = new System.Drawing.Size(450, 700);
             this._tileControlMasalar.TabIndex = 1;
             this._tileControlMasalar.Text = "tileControl1";
-            this._tileControlMasalar.ItemSize = 150;
+            this._tileControlMasalar.ItemSize = 160;
+            this._tileControlMasalar.AppearanceItem.Normal.BackColor = System.Drawing.Color.FromArgb(245, 245, 250);
+            this._tileControlMasalar.AppearanceItem.Normal.Options.UseBackColor = true;
             // 
             // _tileGroupMasalar
             // 
             this._tileGroupMasalar.Name = "_tileGroupMasalar";
-            this._tileGroupMasalar.Text = "Masalar";
+            this._tileGroupMasalar.Text = "🎮 Masalar";
             // 
             // _grpMasaDetay
             // 
@@ -109,7 +113,7 @@ namespace GameCenterAI.WinForms
             this._grpMasaDetay.Dock = System.Windows.Forms.DockStyle.Left;
             this._grpMasaDetay.Location = new System.Drawing.Point(0, 0);
             this._grpMasaDetay.Name = "_grpMasaDetay";
-            this._grpMasaDetay.Size = new System.Drawing.Size(320, 800);
+            this._grpMasaDetay.Size = new System.Drawing.Size(320, 700);
             this._grpMasaDetay.TabIndex = 0;
             this._grpMasaDetay.Text = "🎮 Masa Yönetimi";
             this._grpMasaDetay.AppearanceCaption.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
@@ -254,9 +258,9 @@ namespace GameCenterAI.WinForms
             this._btnMasaAcKapat.Appearance.Options.UseForeColor = true;
             this._btnMasaAcKapat.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(0, 82, 184);
             this._btnMasaAcKapat.AppearanceHovered.Options.UseBackColor = true;
-            this._btnMasaAcKapat.Location = new System.Drawing.Point(20, 480);
+            this._btnMasaAcKapat.Location = new System.Drawing.Point(10, 440);
             this._btnMasaAcKapat.Name = "_btnMasaAcKapat";
-            this._btnMasaAcKapat.Size = new System.Drawing.Size(130, 50);
+            this._btnMasaAcKapat.Size = new System.Drawing.Size(130, 45);
             this._btnMasaAcKapat.TabIndex = 10;
             this._btnMasaAcKapat.Text = "▶ Masa Aç";
             this._btnMasaAcKapat.Click += new System.EventHandler(this.BtnMasaAcKapat_Click);
@@ -271,9 +275,9 @@ namespace GameCenterAI.WinForms
             this._btnSiparisEkle.Appearance.Options.UseForeColor = true;
             this._btnSiparisEkle.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(230, 173, 0);
             this._btnSiparisEkle.AppearanceHovered.Options.UseBackColor = true;
-            this._btnSiparisEkle.Location = new System.Drawing.Point(20, 540);
+            this._btnSiparisEkle.Location = new System.Drawing.Point(10, 490);
             this._btnSiparisEkle.Name = "_btnSiparisEkle";
-            this._btnSiparisEkle.Size = new System.Drawing.Size(130, 45);
+            this._btnSiparisEkle.Size = new System.Drawing.Size(130, 40);
             this._btnSiparisEkle.TabIndex = 12;
             this._btnSiparisEkle.Text = "➕ Sipariş Ekle";
             this._btnSiparisEkle.Click += new System.EventHandler(this.BtnSiparisEkle_Click);
@@ -286,7 +290,7 @@ namespace GameCenterAI.WinForms
             this._btnTarifeDegistir.Appearance.Options.UseBackColor = true;
             this._btnTarifeDegistir.Appearance.Options.UseFont = true;
             this._btnTarifeDegistir.Appearance.Options.UseForeColor = true;
-            this._btnTarifeDegistir.Location = new System.Drawing.Point(160, 535);
+            this._btnTarifeDegistir.Location = new System.Drawing.Point(150, 490);
             this._btnTarifeDegistir.Name = "_btnTarifeDegistir";
             this._btnTarifeDegistir.Size = new System.Drawing.Size(120, 40);
             this._btnTarifeDegistir.TabIndex = 13;
@@ -303,9 +307,9 @@ namespace GameCenterAI.WinForms
             this._btnOdemeAl.Appearance.Options.UseForeColor = true;
             this._btnOdemeAl.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(30, 150, 60);
             this._btnOdemeAl.AppearanceHovered.Options.UseBackColor = true;
-            this._btnOdemeAl.Location = new System.Drawing.Point(160, 480);
+            this._btnOdemeAl.Location = new System.Drawing.Point(150, 440);
             this._btnOdemeAl.Name = "_btnOdemeAl";
-            this._btnOdemeAl.Size = new System.Drawing.Size(130, 50);
+            this._btnOdemeAl.Size = new System.Drawing.Size(130, 45);
             this._btnOdemeAl.TabIndex = 16;
             this._btnOdemeAl.Text = "💰 Ödeme Al";
             this._btnOdemeAl.Enabled = false;
@@ -319,7 +323,7 @@ namespace GameCenterAI.WinForms
             this._btnMasaEkle.Appearance.Options.UseBackColor = true;
             this._btnMasaEkle.Appearance.Options.UseFont = true;
             this._btnMasaEkle.Appearance.Options.UseForeColor = true;
-            this._btnMasaEkle.Location = new System.Drawing.Point(20, 25);
+            this._btnMasaEkle.Location = new System.Drawing.Point(10, 25);
             this._btnMasaEkle.Name = "_btnMasaEkle";
             this._btnMasaEkle.Size = new System.Drawing.Size(120, 35);
             this._btnMasaEkle.TabIndex = 18;
@@ -334,7 +338,7 @@ namespace GameCenterAI.WinForms
             this._btnMasaSil.Appearance.Options.UseBackColor = true;
             this._btnMasaSil.Appearance.Options.UseFont = true;
             this._btnMasaSil.Appearance.Options.UseForeColor = true;
-            this._btnMasaSil.Location = new System.Drawing.Point(160, 25);
+            this._btnMasaSil.Location = new System.Drawing.Point(150, 25);
             this._btnMasaSil.Name = "_btnMasaSil";
             this._btnMasaSil.Size = new System.Drawing.Size(120, 35);
             this._btnMasaSil.TabIndex = 19;
@@ -343,10 +347,10 @@ namespace GameCenterAI.WinForms
             // 
             // _gridControlSiparisDetay
             // 
-            this._gridControlSiparisDetay.Location = new System.Drawing.Point(20, 615);
+            this._gridControlSiparisDetay.Location = new System.Drawing.Point(10, 535);
             this._gridControlSiparisDetay.MainView = this._gridViewSiparisDetay;
             this._gridControlSiparisDetay.Name = "_gridControlSiparisDetay";
-            this._gridControlSiparisDetay.Size = new System.Drawing.Size(260, 165);
+            this._gridControlSiparisDetay.Size = new System.Drawing.Size(300, 155);
             this._gridControlSiparisDetay.TabIndex = 17;
             this._gridControlSiparisDetay.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewSiparisDetay});
@@ -363,7 +367,7 @@ namespace GameCenterAI.WinForms
             this._lblToplam.Appearance.ForeColor = System.Drawing.Color.Red;
             this._lblToplam.Appearance.Options.UseFont = true;
             this._lblToplam.Appearance.Options.UseForeColor = true;
-            this._lblToplam.Location = new System.Drawing.Point(20, 440);
+            this._lblToplam.Location = new System.Drawing.Point(10, 400);
             this._lblToplam.Name = "_lblToplam";
             this._lblToplam.Size = new System.Drawing.Size(200, 26);
             this._lblToplam.TabIndex = 14;
@@ -371,13 +375,13 @@ namespace GameCenterAI.WinForms
             // 
             // _cmbTarifeler
             // 
-            this._cmbTarifeler.Location = new System.Drawing.Point(20, 585);
+            this._cmbTarifeler.Location = new System.Drawing.Point(10, 370);
             this._cmbTarifeler.Name = "_cmbTarifeler";
             this._cmbTarifeler.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F);
             this._cmbTarifeler.Properties.Appearance.Options.UseFont = true;
             this._cmbTarifeler.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this._cmbTarifeler.Size = new System.Drawing.Size(260, 20);
+            this._cmbTarifeler.Size = new System.Drawing.Size(300, 20);
             this._cmbTarifeler.TabIndex = 15;
             // 
             // FrmMasalar
@@ -385,7 +389,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1000, 800);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._tileControlMasalar);
             this.Controls.Add(this._grpMasaDetay);
             this.Name = "FrmMasalar";

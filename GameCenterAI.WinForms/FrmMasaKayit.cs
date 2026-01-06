@@ -85,18 +85,18 @@ namespace GameCenterAI.WinForms
                     Durum = _cmbDurum.Text
                 };
 
-                bool result = false;
+                string hata = null;
                 if (_duzenlemeModu && _duzenlenecekMasa != null)
                 {
                     masa.MasaID = _duzenlenecekMasa.MasaID;
-                    result = _masaService.Guncelle(masa);
+                    hata = _masaService.Guncelle(masa);
                 }
                 else
                 {
-                    result = _masaService.Ekle(masa);
+                    hata = _masaService.Ekle(masa);
                 }
 
-                if (result)
+                if (hata == null)
                 {
                     XtraMessageBox.Show(_duzenlemeModu ? "Masa güncellendi!" : "Masa eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;

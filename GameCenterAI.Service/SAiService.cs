@@ -14,6 +14,7 @@ using GameCenterAI.Interface;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Emgu.CV.Util;
 
 namespace GameCenterAI.Service
 {
@@ -184,7 +185,8 @@ namespace GameCenterAI.Service
 
                 // Capture frame from camera
                 Mat frame = new Mat();
-                if (!_camera.Read(frame) || frame.IsEmpty)
+                _camera.Read(frame);
+                if (frame.IsEmpty)
                 {
                     frame.Dispose();
                     return null;
@@ -242,33 +244,25 @@ namespace GameCenterAI.Service
         /// </summary>
         /// <param name="storedFace">The stored face encoding as byte array.</param>
         /// <param name="currentFace">The current face image as byte array.</param>
-        /// <returns>True if faces match, false otherwise.</returns>
-        public bool CompareFaces(byte[] storedFace, byte[] currentFace)
+        /// <param name="eslesme">True if faces match, false otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string CompareFaces(byte[] storedFace, byte[] currentFace, out bool eslesme)
         {
+            string hata = null;
+            eslesme = false;
+            
             if (storedFace == null || currentFace == null || storedFace.Length == 0 || currentFace.Length == 0)
             {
-                return false;
+                return hata; // eslesme zaten false
             }
 
             try
             {
-                // Convert byte arrays to Bitmap first, then to EmguCV Mat
-                Bitmap storedBitmap;
-                Bitmap currentBitmap;
-
-                using (MemoryStream ms1 = new MemoryStream(storedFace))
-                {
-                    storedBitmap = new Bitmap(ms1);
-                }
-
-                using (MemoryStream ms2 = new MemoryStream(currentFace))
-                {
-                    currentBitmap = new Bitmap(ms2);
-                }
-
-                // Convert to EmguCV Mat
-                Mat storedMat = storedBitmap.ToMat();
-                Mat currentMat = currentBitmap.ToMat();
+                // Convert byte arrays directly to EmguCV Mat
+                Mat storedMat = new Mat();
+                Mat currentMat = new Mat();
+                CvInvoke.Imdecode(storedFace, ImreadModes.Color, storedMat);
+                CvInvoke.Imdecode(currentFace, ImreadModes.Color, currentMat);
 
                 // Resize images to same size for comparison
                 Mat resizedStored = new Mat();
@@ -285,14 +279,16 @@ namespace GameCenterAI.Service
                 // Calculate histogram comparison
                 Mat histStored = new Mat();
                 Mat histCurrent = new Mat();
-                Mat[] imagesStored = { grayStored };
-                Mat[] imagesCurrent = { grayCurrent };
-                int[] channels = { 0 };
-                int[] histSize = { 256 };
-                float[] ranges = { 0, 256 };
+                using (VectorOfMat imagesStored = new VectorOfMat(new Mat[] { grayStored }))
+                using (VectorOfMat imagesCurrent = new VectorOfMat(new Mat[] { grayCurrent }))
+                {
+                    int[] channels = { 0 };
+                    int[] histSize = { 256 };
+                    float[] ranges = { 0, 256 };
 
-                CvInvoke.CalcHist(imagesStored, channels, new Mat(), histStored, histSize, ranges, false);
-                CvInvoke.CalcHist(imagesCurrent, channels, new Mat(), histCurrent, histSize, ranges, false);
+                    CvInvoke.CalcHist(imagesStored, channels, new Mat(), histStored, histSize, ranges, false);
+                    CvInvoke.CalcHist(imagesCurrent, channels, new Mat(), histCurrent, histSize, ranges, false);
+                }
 
                 double similarity = CvInvoke.CompareHist(histStored, histCurrent, HistogramCompMethod.Correl);
 
@@ -305,16 +301,16 @@ namespace GameCenterAI.Service
                 grayCurrent.Dispose();
                 histStored.Dispose();
                 histCurrent.Dispose();
-                storedBitmap.Dispose();
-                currentBitmap.Dispose();
 
                 // Threshold for match (0.7 = 70% similarity)
-                return similarity > 0.7;
+                eslesme = similarity > 0.7;
             }
             catch (Exception ex)
             {
-                throw new Exception("Yüz karşılaştırma işlemi sırasında hata oluştu: " + ex.Message, ex);
+                hata = "Yüz karşılaştırma işlemi sırasında hata oluştu: " + ex.Message;
             }
+
+            return hata;
         }
 
         /// <summary>

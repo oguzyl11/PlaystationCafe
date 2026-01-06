@@ -56,7 +56,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                _urunler = _urunService.Listele();
+                string hataListe = _urunService.Listele(out _urunler);
+                if (hataListe != null)
+                {
+                    XtraMessageBox.Show($"Ürünler yüklenirken hata oluştu: {hataListe}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlUrunler.DataSource = _urunler;
             }
             catch (Exception ex)
@@ -165,15 +170,19 @@ namespace GameCenterAI.WinForms
                     Durum = "Aktif"
                 };
 
-                int siparisID = _siparisService.Olustur(siparis);
+                string hataOlustur = _siparisService.Olustur(siparis, out int siparisID);
 
-                if (siparisID > 0)
+                if (hataOlustur == null && siparisID > 0)
                 {
                     // Sipariş detaylarını ekle
                     foreach (var detay in _siparisDetaylar)
                     {
                         detay.SiparisID = siparisID;
-                        _siparisService.DetayEkle(detay);
+                        string hataDetay = _siparisService.DetayEkle(detay);
+                        if (hataDetay != null)
+                        {
+                            XtraMessageBox.Show($"Sipariş detayı eklenirken hata oluştu: {hataDetay}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
 
                     // Hareket tablosunu güncelle

@@ -16,10 +16,13 @@ namespace GameCenterAI.Service
         /// Starts a new transaction for a table.
         /// </summary>
         /// <param name="hareket">The transaction entity.</param>
-        /// <returns>The created transaction ID.</returns>
-        public int Baslat(Hareketler hareket)
+        /// <param name="hareketId">The created transaction ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Baslat(Hareketler hareket, out int hareketId)
         {
-            int hareketID = 0;
+            string hata = null;
+            hareketId = 0;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -57,70 +60,81 @@ namespace GameCenterAI.Service
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    hareketID = Convert.ToInt32(result);
+                    hareketId = Convert.ToInt32(result);
+                }
+                else
+                {
+                    hata = "Hareket başlatma işlemi başarısız oldu.";
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Hareket başlatma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return hareketID;
+            return hata;
         }
 
         /// <summary>
         /// Ends a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Bitir(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Bitir(int hareketId)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Hareketler SET Bitis = @Bitis, Durum = 'Kapatıldı' WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
             command.Parameters.AddWithValue("@Bitis", DateTime.Now);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Hareket bitirme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Hareket bitirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Gets a transaction by ID.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>The transaction entity.</returns>
-        public Hareketler Getir(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="hareket">The transaction entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int hareketId, out Hareketler hareket)
         {
-            Hareketler hareket = null;
+            string hata = null;
+            hareket = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             
             // Temel kolonları seç (OyunID ve TarifeID opsiyonel)
             command.CommandText = "SELECT HareketID, UyeID, MasaID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE HareketID = @HareketID";
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
 
             try
             {
@@ -150,60 +164,66 @@ namespace GameCenterAI.Service
                 reader.Close();
                 
                 // Opsiyonel kolonları ayrı sorgu ile oku (varsa)
-                try
+                if (hareket != null)
                 {
-                    SqlCommand optCommand = new SqlCommand();
-                    optCommand.Connection = Tools.Connection;
-                    optCommand.CommandType = CommandType.Text;
-                    optCommand.CommandText = "SELECT TarifeID, OyunID FROM Hareketler WHERE HareketID = @HareketID";
-                    optCommand.Parameters.AddWithValue("@HareketID", hareketID);
-                    
-                    SqlDataReader optReader = optCommand.ExecuteReader();
-                    if (optReader.Read() && hareket != null)
+                    try
                     {
-                        if (optReader["TarifeID"] != DBNull.Value)
+                        SqlCommand optCommand = new SqlCommand();
+                        optCommand.Connection = Tools.Connection;
+                        optCommand.CommandType = CommandType.Text;
+                        optCommand.CommandText = "SELECT TarifeID, OyunID FROM Hareketler WHERE HareketID = @HareketID";
+                        optCommand.Parameters.AddWithValue("@HareketID", hareketId);
+                        
+                        SqlDataReader optReader = optCommand.ExecuteReader();
+                        if (optReader.Read())
                         {
-                            hareket.TarifeID = Convert.ToInt32(optReader["TarifeID"]);
+                            if (optReader["TarifeID"] != DBNull.Value)
+                            {
+                                hareket.TarifeID = Convert.ToInt32(optReader["TarifeID"]);
+                            }
+                            if (optReader["OyunID"] != DBNull.Value)
+                            {
+                                hareket.OyunID = Convert.ToInt32(optReader["OyunID"]);
+                            }
                         }
-                        if (optReader["OyunID"] != DBNull.Value)
-                        {
-                            hareket.OyunID = Convert.ToInt32(optReader["OyunID"]);
-                        }
+                        optReader.Close();
                     }
-                    optReader.Close();
-                }
-                catch
-                {
-                    // Opsiyonel kolonlar yoksa sessizce devam et
+                    catch
+                    {
+                        // Opsiyonel kolonlar yoksa sessizce devam et
+                    }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Hareket getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return hareket;
+            return hata;
         }
 
         /// <summary>
         /// Gets active transaction for a table.
         /// </summary>
-        /// <param name="masaID">The table ID.</param>
-        /// <returns>The active transaction entity.</returns>
-        public Hareketler GetirAktifByMasaID(int masaID)
+        /// <param name="masaId">The table ID.</param>
+        /// <param name="hareket">The active transaction entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetirAktifByMasaID(int masaId, out Hareketler hareket)
         {
-            Hareketler hareket = null;
+            string hata = null;
+            hareket = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             
             // Temel kolonları seç (OyunID ve TarifeID opsiyonel)
             command.CommandText = "SELECT HareketID, UyeID, MasaID, Baslangic, Bitis, Ucret, PesinAlinan, SiparisToplami, Durum FROM Hareketler WHERE MasaID = @MasaID AND Durum = 'Aktif'";
-            command.Parameters.AddWithValue("@MasaID", masaID);
+            command.Parameters.AddWithValue("@MasaID", masaId);
 
             try
             {
@@ -265,24 +285,27 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Hareket getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return hareket;
+            return hata;
         }
 
         /// <summary>
         /// Calculates the fee for a transaction based on elapsed time.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>The calculated fee.</returns>
-        public decimal UcretHesapla(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="ucret">The calculated fee.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string UcretHesapla(int hareketId, out decimal ucret)
         {
-            decimal ucret = 0;
+            string hata = null;
+            ucret = 0;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -293,7 +316,7 @@ namespace GameCenterAI.Service
                 INNER JOIN Masalar m ON h.MasaID = m.MasaID
                 WHERE h.HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
 
             try
             {
@@ -323,30 +346,33 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Ücret hesaplama işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return ucret;
+            return hata;
         }
 
         /// <summary>
         /// Gets elapsed time for a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>The elapsed time in minutes.</returns>
-        public int GecenSureGetir(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="dakika">The elapsed time in minutes.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GecenSureGetir(int hareketId, out int dakika)
         {
-            int dakika = 0;
+            string hata = null;
+            dakika = 0;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT Baslangic FROM Hareketler WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
 
             try
             {
@@ -364,139 +390,152 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Geçen süre hesaplama işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return dakika;
+            return hata;
         }
 
         /// <summary>
         /// Updates the order total for a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
+        /// <param name="hareketId">The transaction ID.</param>
         /// <param name="siparisToplami">The order total amount.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool SiparisToplamiGuncelle(int hareketID, decimal siparisToplami)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string SiparisToplamiGuncelle(int hareketId, decimal siparisToplami)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Hareketler SET SiparisToplami = SiparisToplami + @SiparisToplami WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
             command.Parameters.AddWithValue("@SiparisToplami", siparisToplami);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Sipariş toplamı güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş toplamı güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Updates the prepaid amount for a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
+        /// <param name="hareketId">The transaction ID.</param>
         /// <param name="pesinAlinan">The prepaid amount.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool PesinAlinanGuncelle(int hareketID, decimal pesinAlinan)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string PesinAlinanGuncelle(int hareketId, decimal pesinAlinan)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Hareketler SET PesinAlinan = @PesinAlinan WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
             command.Parameters.AddWithValue("@PesinAlinan", pesinAlinan);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Peşin alınan güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Peşin alınan güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Updates the tariff for a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <param name="tarifeID">The new tariff ID.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool TarifeGuncelle(int hareketID, int tarifeID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="tarifeId">The new tariff ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string TarifeGuncelle(int hareketId, int tarifeId)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Hareketler SET TarifeID = @TarifeID WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
-            command.Parameters.AddWithValue("@TarifeID", tarifeID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
+            command.Parameters.AddWithValue("@TarifeID", tarifeId);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Tarife güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Tarife güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Updates the game ID for a transaction.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <param name="oyunID">The game ID (nullable).</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool OyunGuncelle(int hareketID, int? oyunID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="oyunId">The game ID (nullable).</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string OyunGuncelle(int hareketId, int? oyunId)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Hareketler SET OyunID = @OyunID WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
-            if (oyunID.HasValue)
+            command.Parameters.AddWithValue("@HareketID", hareketId);
+            if (oyunId.HasValue)
             {
-                command.Parameters.AddWithValue("@OyunID", oyunID.Value);
+                command.Parameters.AddWithValue("@OyunID", oyunId.Value);
             }
             else
             {
@@ -507,19 +546,21 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Oyun güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Oyun güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }
-

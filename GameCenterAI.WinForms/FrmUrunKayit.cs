@@ -118,23 +118,37 @@ namespace GameCenterAI.WinForms
                 else
                 {
                     // Aynı isimde ürün kontrolü
-                    var mevcutUrun = _urunService.GetirByUrunAdi(_txtUrunAdi.Text);
-                    if (mevcutUrun != null)
+                    string hataGetir = _urunService.GetirByUrunAdi(_txtUrunAdi.Text, out Urunler mevcutUrun);
+                    if (hataGetir == null && mevcutUrun != null)
                     {
                         // Aynı isimde ürün var - stok artır veya fiyat değiştir
                         if (XtraMessageBox.Show($"'{_txtUrunAdi.Text}' isimli ürün zaten mevcut.\n\nStok artırılsın mı? (Hayır derseniz fiyat güncellenecek)", "Ürün Mevcut", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
                             // Stok artır
                             mevcutUrun.Stok += (int)_spinStok.Value;
-                            _urunService.StokGuncelle(mevcutUrun.UrunID, mevcutUrun.Stok);
-                            XtraMessageBox.Show($"Stok artırıldı! Yeni stok: {mevcutUrun.Stok}", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            string hataStok = _urunService.StokGuncelle(mevcutUrun.UrunID, mevcutUrun.Stok);
+                            if (hataStok == null)
+                            {
+                                XtraMessageBox.Show($"Stok artırıldı! Yeni stok: {mevcutUrun.Stok}", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else
+                            {
+                                XtraMessageBox.Show($"Stok güncellenirken hata oluştu: {hataStok}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                         else
                         {
                             // Fiyat güncelle
                             mevcutUrun.Fiyat = _spinFiyat.Value;
-                            _urunService.FiyatGuncelle(mevcutUrun.UrunID, mevcutUrun.Fiyat);
-                            XtraMessageBox.Show($"Fiyat güncellendi! Yeni fiyat: {mevcutUrun.Fiyat:N2} TL", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            string hataFiyat = _urunService.FiyatGuncelle(mevcutUrun.UrunID, mevcutUrun.Fiyat);
+                            if (hataFiyat == null)
+                            {
+                                XtraMessageBox.Show($"Fiyat güncellendi! Yeni fiyat: {mevcutUrun.Fiyat:N2} TL", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else
+                            {
+                                XtraMessageBox.Show($"Fiyat güncellenirken hata oluştu: {hataFiyat}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                     }
                     else
@@ -149,9 +163,9 @@ namespace GameCenterAI.WinForms
                             Durum = _cmbDurum.Text
                         };
 
-                        bool result = _urunService.Ekle(yeniUrun);
+                        string hataEkle = _urunService.Ekle(yeniUrun);
 
-                        if (result)
+                        if (hataEkle == null)
                         {
                             XtraMessageBox.Show("Ürün kaydı başarıyla oluşturuldu!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }

@@ -33,8 +33,9 @@ namespace GameCenterAI.Interface
         /// </summary>
         /// <param name="storedFace">The stored face encoding as byte array.</param>
         /// <param name="currentFace">The current face image as byte array.</param>
-        /// <returns>True if faces match, false otherwise.</returns>
-        bool CompareFaces(byte[] storedFace, byte[] currentFace);
+        /// <param name="eslesme">True if faces match, false otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string CompareFaces(byte[] storedFace, byte[] currentFace, out bool eslesme);
 
         /// <summary>
         /// Gets game recommendations for a user using ML.NET.

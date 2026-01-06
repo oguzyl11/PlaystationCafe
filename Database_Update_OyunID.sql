@@ -2,28 +2,42 @@
 -- Veritabanı Güncelleme Scripti
 -- OyunID kolonunu Hareketler tablosuna ekler
 -- =============================================
+-- NOT: Bu scripti çalıştırmadan önce doğru veritabanını seçtiğinizden emin olun!
+-- USE [VeritabaniAdiniz]; komutunu kullanabilirsiniz.
 
-USE GameCenterDB;
-GO
+-- Önce Hareketler tablosunun varlığını kontrol et
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Hareketler]') AND type in (N'U'))
+BEGIN
+    PRINT 'HATA: Hareketler tablosu bulunamadı!';
+    PRINT 'Lütfen önce Database_Schema.sql dosyasını çalıştırın.';
+    RETURN;
+END
 
 -- OyunID kolonu ekle (AI için oyun takibi)
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Hareketler]') AND name = 'OyunID')
 BEGIN
     ALTER TABLE [dbo].[Hareketler] ADD [OyunID] [int] NULL;
     
-    -- Foreign key constraint ekle
-    IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Hareketler_OyunID')
+    -- Foreign key constraint ekle (Oyunlar tablosu varsa)
+    IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Oyunlar]') AND type in (N'U'))
     BEGIN
-        ALTER TABLE [dbo].[Hareketler] 
-        ADD CONSTRAINT FK_Hareketler_OyunID 
-        FOREIGN KEY ([OyunID]) REFERENCES [Oyunlar]([OyunID]);
+        IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Hareketler_OyunID')
+        BEGIN
+            ALTER TABLE [dbo].[Hareketler] 
+            ADD CONSTRAINT FK_Hareketler_OyunID 
+            FOREIGN KEY ([OyunID]) REFERENCES [Oyunlar]([OyunID]);
+        END
+    END
+    ELSE
+    BEGIN
+        PRINT 'UYARI: Oyunlar tablosu bulunamadı. Foreign key constraint eklenmedi.';
     END
     
-    PRINT 'OyunID kolonu başarıyla eklendi!';
+    PRINT '✓ OyunID kolonu başarıyla eklendi!';
 END
 ELSE
 BEGIN
-    PRINT 'OyunID kolonu zaten mevcut.';
+    PRINT 'ℹ OyunID kolonu zaten mevcut.';
 END
 GO
 

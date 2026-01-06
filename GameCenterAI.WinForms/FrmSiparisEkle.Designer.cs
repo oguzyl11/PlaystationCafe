@@ -52,7 +52,7 @@ namespace GameCenterAI.WinForms
             this._gridControlUrunler.Location = new System.Drawing.Point(12, 50);
             this._gridControlUrunler.MainView = this._gridViewUrunler;
             this._gridControlUrunler.Name = "_gridControlUrunler";
-            this._gridControlUrunler.Size = new System.Drawing.Size(400, 300);
+            this._gridControlUrunler.Size = new System.Drawing.Size(360, 450);
             this._gridControlUrunler.TabIndex = 0;
             this._gridControlUrunler.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewUrunler});
@@ -65,10 +65,10 @@ namespace GameCenterAI.WinForms
             // 
             // _gridControlSiparisDetay
             // 
-            this._gridControlSiparisDetay.Location = new System.Drawing.Point(430, 50);
+            this._gridControlSiparisDetay.Location = new System.Drawing.Point(390, 50);
             this._gridControlSiparisDetay.MainView = this._gridViewSiparisDetay;
             this._gridControlSiparisDetay.Name = "_gridControlSiparisDetay";
-            this._gridControlSiparisDetay.Size = new System.Drawing.Size(400, 300);
+            this._gridControlSiparisDetay.Size = new System.Drawing.Size(360, 450);
             this._gridControlSiparisDetay.TabIndex = 1;
             this._gridControlSiparisDetay.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewSiparisDetay});
@@ -81,7 +81,7 @@ namespace GameCenterAI.WinForms
             // 
             // _btnUrunEkle
             // 
-            this._btnUrunEkle.Location = new System.Drawing.Point(12, 360);
+            this._btnUrunEkle.Location = new System.Drawing.Point(12, 510);
             this._btnUrunEkle.Name = "_btnUrunEkle";
             this._btnUrunEkle.Size = new System.Drawing.Size(100, 30);
             this._btnUrunEkle.TabIndex = 2;
@@ -90,7 +90,7 @@ namespace GameCenterAI.WinForms
             // 
             // _btnUrunCikar
             // 
-            this._btnUrunCikar.Location = new System.Drawing.Point(430, 360);
+            this._btnUrunCikar.Location = new System.Drawing.Point(390, 510);
             this._btnUrunCikar.Name = "_btnUrunCikar";
             this._btnUrunCikar.Size = new System.Drawing.Size(100, 30);
             this._btnUrunCikar.TabIndex = 3;
@@ -99,7 +99,7 @@ namespace GameCenterAI.WinForms
             // 
             // _btnKaydet
             // 
-            this._btnKaydet.Location = new System.Drawing.Point(655, 360);
+            this._btnKaydet.Location = new System.Drawing.Point(590, 600);
             this._btnKaydet.Name = "_btnKaydet";
             this._btnKaydet.Size = new System.Drawing.Size(75, 30);
             this._btnKaydet.TabIndex = 4;
@@ -108,7 +108,7 @@ namespace GameCenterAI.WinForms
             // 
             // _btnIptal
             // 
-            this._btnIptal.Location = new System.Drawing.Point(736, 360);
+            this._btnIptal.Location = new System.Drawing.Point(680, 600);
             this._btnIptal.Name = "_btnIptal";
             this._btnIptal.Size = new System.Drawing.Size(75, 30);
             this._btnIptal.TabIndex = 5;
@@ -122,7 +122,7 @@ namespace GameCenterAI.WinForms
             0,
             0,
             0});
-            this._spinAdet.Location = new System.Drawing.Point(118, 363);
+            this._spinAdet.Location = new System.Drawing.Point(118, 513);
             this._spinAdet.Name = "_spinAdet";
             this._spinAdet.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -143,7 +143,7 @@ namespace GameCenterAI.WinForms
             // 
             this._lblToplam.Appearance.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this._lblToplam.Appearance.Options.UseFont = true;
-            this._lblToplam.Location = new System.Drawing.Point(430, 400);
+            this._lblToplam.Location = new System.Drawing.Point(390, 550);
             this._lblToplam.Name = "_lblToplam";
             this._lblToplam.Size = new System.Drawing.Size(80, 16);
             this._lblToplam.TabIndex = 7;
@@ -159,7 +159,7 @@ namespace GameCenterAI.WinForms
             // 
             // labelControl2
             // 
-            this.labelControl2.Location = new System.Drawing.Point(430, 12);
+            this.labelControl2.Location = new System.Drawing.Point(390, 12);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(75, 13);
             this.labelControl2.TabIndex = 9;
@@ -170,7 +170,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(842, 430);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this.labelControl2);
             this.Controls.Add(this.labelControl1);
             this.Controls.Add(this._lblToplam);

@@ -27,8 +27,8 @@ namespace GameCenterAI.Interface
         /// Adds a new note.
         /// </summary>
         /// <param name="not">The note entity to add.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool Ekle(Notlar not);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Ekle(Notlar not);
     }
 }
 

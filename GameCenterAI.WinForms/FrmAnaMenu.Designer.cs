@@ -81,7 +81,7 @@ namespace GameCenterAI.WinForms
             this._contentPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._contentPanel.Location = new System.Drawing.Point(0, 150);
             this._contentPanel.Name = "_contentPanel";
-            this._contentPanel.Size = new System.Drawing.Size(1200, 550);
+            this._contentPanel.Size = new System.Drawing.Size(770, 550);
             this._contentPanel.TabIndex = 1;
             // 
             // ribbonControl1
@@ -123,7 +123,7 @@ namespace GameCenterAI.WinForms
             this._ribbonPageAraclar,
             this._ribbonPageNotlar,
             this._ribbonPageYardim});
-            this.ribbonControl1.Size = new System.Drawing.Size(1200, 158);
+            this.ribbonControl1.Size = new System.Drawing.Size(770, 150);
             // 
             // _barButtonItemKafe
             // 
@@ -422,7 +422,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1200, 700);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._contentPanel);
             this.Controls.Add(this.ribbonControl1);
             this.IsMdiContainer = false;
@@ -430,7 +430,7 @@ namespace GameCenterAI.WinForms
             this.Ribbon = this.ribbonControl1;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameCenter AI - Ana Menü";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.WindowState = System.Windows.Forms.FormWindowState.Normal;
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -18,10 +18,13 @@ namespace GameCenterAI.Service
         /// </summary>
         /// <param name="kullaniciAdi">The username.</param>
         /// <param name="sifre">The password.</param>
-        /// <returns>The authenticated member entity if successful, null otherwise.</returns>
-        public Uyeler GirisYap(string kullaniciAdi, string sifre)
+        /// <param name="uye">The authenticated member entity if successful, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GirisYap(string kullaniciAdi, string sifre, out Uyeler uye)
         {
-            Uyeler uye = null;
+            string hata = null;
+            uye = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -57,24 +60,25 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Login işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return uye;
+            return hata;
         }
 
         /// <summary>
         /// Adds a new member to the system.
         /// </summary>
         /// <param name="uye">The member entity to add.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool Ekle(Uyeler uye)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Ekle(Uyeler uye)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -101,27 +105,33 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Kayıt işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Kayıt işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Lists all members.
         /// </summary>
-        /// <returns>A list of all members.</returns>
-        public List<Uyeler> Listele()
+        /// <param name="uyeler">The list of all members.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Uyeler> uyeler)
         {
-            List<Uyeler> uyeler = new List<Uyeler>();
+            string hata = null;
+            uyeler = new List<Uyeler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -156,30 +166,33 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Üye listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return uyeler;
+            return hata;
         }
 
         /// <summary>
         /// Gets a member by ID.
         /// </summary>
-        /// <param name="uyeID">The member ID.</param>
-        /// <returns>The member entity.</returns>
-        public Uyeler Getir(int uyeID)
+        /// <param name="uyeId">The member ID.</param>
+        /// <param name="uye">The member entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int uyeId, out Uyeler uye)
         {
-            Uyeler uye = null;
+            string hata = null;
+            uye = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT UyeID, AdSoyad, KullaniciAdi, Sifre, FaceEncoding, Bakiye, Durum FROM Uyeler WHERE UyeID = @UyeID";
 
-            command.Parameters.AddWithValue("@UyeID", uyeID);
+            command.Parameters.AddWithValue("@UyeID", uyeId);
 
             try
             {
@@ -208,24 +221,25 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Üye getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return uye;
+            return hata;
         }
 
         /// <summary>
         /// Updates an existing member.
         /// </summary>
         /// <param name="uye">The member entity to update.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool Guncelle(Uyeler uye)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Guncelle(Uyeler uye)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -253,20 +267,21 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Üye güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }
-
-

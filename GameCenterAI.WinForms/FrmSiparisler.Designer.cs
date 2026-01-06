@@ -45,7 +45,7 @@ namespace GameCenterAI.WinForms
             this._gridControlSiparisler.Location = new System.Drawing.Point(12, 50);
             this._gridControlSiparisler.MainView = this._gridViewSiparisler;
             this._gridControlSiparisler.Name = "_gridControlSiparisler";
-            this._gridControlSiparisler.Size = new System.Drawing.Size(900, 500);
+            this._gridControlSiparisler.Size = new System.Drawing.Size(746, 640);
             this._gridControlSiparisler.TabIndex = 0;
             this._gridControlSiparisler.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewSiparisler});
@@ -88,7 +88,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(924, 562);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._btnYenile);
             this.Controls.Add(this._btnDetay);
             this.Controls.Add(this._btnYeni);

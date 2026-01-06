@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using GameCenterAI.Entity;
@@ -17,6 +20,10 @@ namespace GameCenterAI.WinForms
         private SimpleButton _btnKayit;
         private GroupControl _grpGiris;
         private SUyeler _uyeService;
+        private SAiService _aiService;
+        private System.Windows.Forms.Timer _yuzTanimaTimer;
+        private bool _kameraAcik;
+        private bool _girisYapildi;
 
         /// <summary>
         /// Initializes a new instance of the FrmGiris class.
@@ -25,6 +32,10 @@ namespace GameCenterAI.WinForms
         {
             InitializeComponent();
             _uyeService = new SUyeler();
+            _aiService = new SAiService();
+            _kameraAcik = false;
+            _girisYapildi = false;
+            InitializeYuzTanima();
         }
 
         /// <summary>
@@ -43,10 +54,23 @@ namespace GameCenterAI.WinForms
                     return;
                 }
 
-                Uyeler uye = _uyeService.GirisYap(kullaniciAdi, sifre);
+                string hata = _uyeService.GirisYap(kullaniciAdi, sifre, out Uyeler uye);
+                
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Giriş işlemi sırasında hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 if (uye != null)
                 {
+                    // Stop face recognition timer
+                    if (_yuzTanimaTimer != null)
+                    {
+                        _yuzTanimaTimer.Stop();
+                    }
+                    _girisYapildi = true;
+
                     XtraMessageBox.Show($"Hoş geldiniz, {uye.AdSoyad}!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     
                     // Open main menu form
@@ -91,6 +115,149 @@ namespace GameCenterAI.WinForms
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
+        }
+
+        /// <summary>
+        /// Initializes face recognition components and starts automatic face detection.
+        /// </summary>
+        private void InitializeYuzTanima()
+        {
+            _yuzTanimaTimer = new System.Windows.Forms.Timer();
+            _yuzTanimaTimer.Interval = 500; // Check every 500ms
+            _yuzTanimaTimer.Tick += YuzTanimaTimer_Tick;
+            
+            // Start camera and face recognition automatically
+            try
+            {
+                _kameraAcik = true;
+                _yuzTanimaTimer.Start();
+                _lblYuzTanimaDurum.Text = "Yüz tanıma aktif... Kameraya bakın.";
+                _lblYuzTanimaDurum.Appearance.ForeColor = Color.Blue;
+            }
+            catch (Exception ex)
+            {
+                _lblYuzTanimaDurum.Text = "Kamera açılamadı: " + ex.Message;
+                _lblYuzTanimaDurum.Appearance.ForeColor = Color.Red;
+                _kameraAcik = false;
+            }
+        }
+
+        /// <summary>
+        /// Timer tick event for automatic face recognition.
+        /// </summary>
+        private void YuzTanimaTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_kameraAcik || _girisYapildi)
+            {
+                return;
+            }
+
+            try
+            {
+                byte[] faceImage = _aiService.CaptureAndDetectFace();
+                
+                if (faceImage != null && faceImage.Length > 0)
+                {
+                    // Display face image
+                    using (MemoryStream ms = new MemoryStream(faceImage))
+                    {
+                        Image img = Image.FromStream(ms);
+                        _pictureBoxKamera.Image?.Dispose();
+                        _pictureBoxKamera.Image = new Bitmap(img);
+                    }
+
+                    // Try to recognize the face
+                    string hataListe = _uyeService.Listele(out List<Uyeler> uyeler);
+                    if (hataListe != null)
+                    {
+                        return;
+                    }
+                    
+                    int bulunanUyeID = -1;
+
+                    foreach (var uye in uyeler)
+                    {
+                        if (uye.FaceEncoding != null && uye.FaceEncoding.Length > 0)
+                        {
+                            string hataKarsilastirma = _aiService.CompareFaces(uye.FaceEncoding, faceImage, out bool eslesme);
+                            
+                            if (hataKarsilastirma == null && eslesme)
+                            {
+                                bulunanUyeID = uye.UyeID;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (bulunanUyeID > 0)
+                    {
+                        // Face recognized - auto login
+                        _yuzTanimaTimer.Stop();
+                        _girisYapildi = true;
+                        _lblYuzTanimaDurum.Text = "Yüz tanındı! Giriş yapılıyor...";
+                        _lblYuzTanimaDurum.Appearance.ForeColor = Color.Green;
+
+                        string hataGetir = _uyeService.Getir(bulunanUyeID, out Uyeler uye);
+                        if (hataGetir != null)
+                        {
+                            return;
+                        }
+                        
+                        // Auto login
+                        XtraMessageBox.Show($"Hoş geldiniz, {uye.AdSoyad}!", "Yüz Tanıma Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        // Open main menu form
+                        FrmAnaMenu frmAnaMenu = new FrmAnaMenu(uye);
+                        this.Hide();
+                        frmAnaMenu.ShowDialog();
+                        this.Close();
+                    }
+                    else
+                    {
+                        _lblYuzTanimaDurum.Text = "Yüz tespit edildi ancak tanınmadı. Lütfen kullanıcı adı ve şifre ile giriş yapın.";
+                        _lblYuzTanimaDurum.Appearance.ForeColor = Color.Orange;
+                    }
+                }
+                else
+                {
+                    _lblYuzTanimaDurum.Text = "Yüz tespit edilemedi. Lütfen kameraya bakın.";
+                    _lblYuzTanimaDurum.Appearance.ForeColor = Color.Gray;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silently handle errors - don't interrupt user if they want to login manually
+                if (_lblYuzTanimaDurum != null)
+                {
+                    _lblYuzTanimaDurum.Text = "Yüz tanıma hatası: " + ex.Message;
+                    _lblYuzTanimaDurum.Appearance.ForeColor = Color.Red;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Cleanup when form is closing.
+        /// </summary>
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (_yuzTanimaTimer != null)
+            {
+                _yuzTanimaTimer.Stop();
+                _yuzTanimaTimer.Dispose();
+            }
+
+            if (_pictureBoxKamera?.Image != null)
+            {
+                _pictureBoxKamera.Image.Dispose();
+                _pictureBoxKamera.Image = null;
+            }
+
+            if (_aiService != null)
+            {
+                _aiService.Dispose();
+            }
+
+            base.OnFormClosing(e);
         }
     }
 }

@@ -113,10 +113,10 @@ namespace GameCenterAI.Service
         /// Adds a new note.
         /// </summary>
         /// <param name="not">The note entity to add.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Ekle(Notlar not)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Ekle(Notlar not)
         {
-            bool result = false;
+            string hata = null;
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -132,18 +132,21 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Not ekleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Not ekleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = "Not ekleme işlemi sırasında hata oluştu: " + ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }

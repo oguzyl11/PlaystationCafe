@@ -93,11 +93,14 @@ public byte[] CaptureAndDetectFace()
 }
 
 // Replace CompareFaces method with:
-public bool CompareFaces(byte[] storedFace, byte[] currentFace)
+public string CompareFaces(byte[] storedFace, byte[] currentFace, out bool eslesme)
 {
+    string hata = null;
+    eslesme = false;
+    
     if (storedFace == null || currentFace == null || storedFace.Length == 0 || currentFace.Length == 0)
     {
-        return false;
+        return hata; // eslesme zaten false
     }
 
     try
@@ -149,12 +152,14 @@ public bool CompareFaces(byte[] storedFace, byte[] currentFace)
         currentBitmap.Dispose();
 
         // Threshold for match (0.7 = 70% similarity)
-        return similarity > 0.7;
+        eslesme = similarity > 0.7;
     }
     catch (Exception ex)
     {
-        throw new Exception("Yüz karşılaştırma işlemi sırasında hata oluştu: " + ex.Message);
+        hata = "Yüz karşılaştırma işlemi sırasında hata oluştu: " + ex.Message;
     }
+
+    return hata;
 }
 
 // Replace Dispose method with:

@@ -38,7 +38,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                List<Uyeler> uyeler = _uyeService.Listele();
+                string hata = _uyeService.Listele(out List<Uyeler> uyeler);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Üyeler yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlUyeler.DataSource = uyeler;
             }
             catch (Exception ex)
@@ -55,7 +60,13 @@ namespace GameCenterAI.WinForms
             if (_gridViewUyeler.GetSelectedRows().Length > 0)
             {
                 int uyeID = Convert.ToInt32(_gridViewUyeler.GetRowCellValue(_gridViewUyeler.GetSelectedRows()[0], "UyeID"));
-                SecilenUye = _uyeService.Getir(uyeID);
+                string hata = _uyeService.Getir(uyeID, out Uyeler uye);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Üye getirilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                SecilenUye = uye;
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }

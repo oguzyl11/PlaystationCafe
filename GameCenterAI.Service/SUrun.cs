@@ -16,10 +16,13 @@ namespace GameCenterAI.Service
         /// <summary>
         /// Gets all products.
         /// </summary>
-        /// <returns>A list of all products.</returns>
-        public List<Urunler> Listele()
+        /// <param name="urunler">The list of all products.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Urunler> urunler)
         {
-            List<Urunler> urunler = new List<Urunler>();
+            string hata = null;
+            urunler = new List<Urunler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -48,24 +51,27 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Ürün listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return urunler;
+            return hata;
         }
 
         /// <summary>
         /// Gets products by category.
         /// </summary>
         /// <param name="kategori">The category name.</param>
-        /// <returns>A list of products in the category.</returns>
-        public List<Urunler> GetirByKategori(string kategori)
+        /// <param name="urunler">The list of products in the category.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetirByKategori(string kategori, out List<Urunler> urunler)
         {
-            List<Urunler> urunler = new List<Urunler>();
+            string hata = null;
+            urunler = new List<Urunler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -96,30 +102,33 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Ürün listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return urunler;
+            return hata;
         }
 
         /// <summary>
         /// Gets a product by ID.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
-        /// <returns>The product entity.</returns>
-        public Urunler Getir(int urunID)
+        /// <param name="urunId">The product ID.</param>
+        /// <param name="urun">The product entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int urunId, out Urunler urun)
         {
-            Urunler urun = null;
+            string hata = null;
+            urun = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT UrunID, UrunAdi, Kategori, Fiyat, Stok, Durum FROM Urunler WHERE UrunID = @UrunID";
 
-            command.Parameters.AddWithValue("@UrunID", urunID);
+            command.Parameters.AddWithValue("@UrunID", urunId);
 
             try
             {
@@ -143,24 +152,27 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Ürün getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return urun;
+            return hata;
         }
 
         /// <summary>
         /// Gets a product by name.
         /// </summary>
         /// <param name="urunAdi">The product name.</param>
-        /// <returns>The product entity if found, null otherwise.</returns>
-        public Urunler GetirByUrunAdi(string urunAdi)
+        /// <param name="urun">The product entity if found, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetirByUrunAdi(string urunAdi, out Urunler urun)
         {
-            Urunler urun = null;
+            string hata = null;
+            urun = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -190,94 +202,103 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Ürün getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return urun;
+            return hata;
         }
 
         /// <summary>
         /// Updates stock for a product.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
+        /// <param name="urunId">The product ID.</param>
         /// <param name="yeniStok">The new stock amount.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool StokGuncelle(int urunID, int yeniStok)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string StokGuncelle(int urunId, int yeniStok)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Urunler SET Stok = @Stok WHERE UrunID = @UrunID";
 
-            command.Parameters.AddWithValue("@UrunID", urunID);
+            command.Parameters.AddWithValue("@UrunID", urunId);
             command.Parameters.AddWithValue("@Stok", yeniStok);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Stok güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Stok güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Updates price for a product.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
+        /// <param name="urunId">The product ID.</param>
         /// <param name="yeniFiyat">The new price.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool FiyatGuncelle(int urunID, decimal yeniFiyat)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string FiyatGuncelle(int urunId, decimal yeniFiyat)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Urunler SET Fiyat = @Fiyat WHERE UrunID = @UrunID";
 
-            command.Parameters.AddWithValue("@UrunID", urunID);
+            command.Parameters.AddWithValue("@UrunID", urunId);
             command.Parameters.AddWithValue("@Fiyat", yeniFiyat);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Fiyat güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Fiyat güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Adds a new product.
         /// </summary>
         /// <param name="urun">The product entity to add.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Ekle(Urunler urun)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Ekle(Urunler urun)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -293,19 +314,21 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Ürün ekleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Ürün ekleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }
-

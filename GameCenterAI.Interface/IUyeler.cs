@@ -13,34 +13,37 @@ namespace GameCenterAI.Interface
         /// </summary>
         /// <param name="kullaniciAdi">The username.</param>
         /// <param name="sifre">The password.</param>
-        /// <returns>The authenticated member entity if successful, null otherwise.</returns>
-        Uyeler GirisYap(string kullaniciAdi, string sifre);
+        /// <param name="uye">The authenticated member entity if successful, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string GirisYap(string kullaniciAdi, string sifre, out Uyeler uye);
 
         /// <summary>
         /// Adds a new member to the system.
         /// </summary>
         /// <param name="uye">The member entity to add.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        bool Ekle(Uyeler uye);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Ekle(Uyeler uye);
 
         /// <summary>
         /// Lists all members.
         /// </summary>
-        /// <returns>A list of all members.</returns>
-        List<Uyeler> Listele();
+        /// <param name="uyeler">The list of all members.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Listele(out List<Uyeler> uyeler);
 
         /// <summary>
         /// Gets a member by ID.
         /// </summary>
-        /// <param name="uyeID">The member ID.</param>
-        /// <returns>The member entity.</returns>
-        Uyeler Getir(int uyeID);
+        /// <param name="uyeId">The member ID.</param>
+        /// <param name="uye">The member entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Getir(int uyeId, out Uyeler uye);
 
         /// <summary>
         /// Updates an existing member.
         /// </summary>
         /// <param name="uye">The member entity to update.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        bool Guncelle(Uyeler uye);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Guncelle(Uyeler uye);
     }
 }

@@ -13,50 +13,55 @@ namespace GameCenterAI.Interface
         /// Creates a new invoice from a transaction.
         /// </summary>
         /// <param name="fatura">The invoice entity to create.</param>
-        /// <returns>The created invoice ID.</returns>
-        int Olustur(Faturalar fatura);
+        /// <param name="faturaId">The created invoice ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Olustur(Faturalar fatura, out int faturaId);
 
         /// <summary>
         /// Gets an invoice by ID.
         /// </summary>
-        /// <param name="faturaID">The invoice ID.</param>
-        /// <returns>The invoice entity.</returns>
-        Faturalar Getir(int faturaID);
+        /// <param name="faturaId">The invoice ID.</param>
+        /// <param name="fatura">The invoice entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Getir(int faturaId, out Faturalar fatura);
 
         /// <summary>
         /// Gets all invoices.
         /// </summary>
-        /// <returns>A list of all invoices.</returns>
-        List<Faturalar> Listele();
+        /// <param name="faturalar">The list of all invoices.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Listele(out List<Faturalar> faturalar);
 
         /// <summary>
         /// Gets invoices by date range.
         /// </summary>
         /// <param name="baslangic">Start date.</param>
         /// <param name="bitis">End date.</param>
-        /// <returns>A list of invoices in the date range.</returns>
-        List<Faturalar> TarihAraligindaGetir(DateTime baslangic, DateTime bitis);
+        /// <param name="faturalar">The list of invoices in the date range.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string TarihAraligindaGetir(DateTime baslangic, DateTime bitis, out List<Faturalar> faturalar);
 
         /// <summary>
         /// Gets invoice by transaction ID.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>The invoice entity if found, null otherwise.</returns>
-        Faturalar HareketIDyeGoreGetir(int hareketID);
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="fatura">The invoice entity if found, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string HareketIDyeGoreGetir(int hareketId, out Faturalar fatura);
 
         /// <summary>
         /// Generates a unique invoice number.
         /// </summary>
-        /// <returns>A unique invoice number.</returns>
-        string FaturaNoOlustur();
+        /// <param name="faturaNo">A unique invoice number.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string FaturaNoOlustur(out string faturaNo);
 
         /// <summary>
         /// Updates invoice status.
         /// </summary>
-        /// <param name="faturaID">The invoice ID.</param>
+        /// <param name="faturaId">The invoice ID.</param>
         /// <param name="durum">The new status.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool DurumGuncelle(int faturaID, string durum);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string DurumGuncelle(int faturaId, string durum);
     }
 }
-

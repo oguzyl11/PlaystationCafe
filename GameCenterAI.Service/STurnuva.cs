@@ -18,10 +18,11 @@ namespace GameCenterAI.Service
         /// Creates a new tournament.
         /// </summary>
         /// <param name="turnuva">The tournament entity to create.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool Olustur(Turnuvalar turnuva)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Olustur(Turnuvalar turnuva)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -36,27 +37,33 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Turnuva oluşturma işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Lists all tournaments.
         /// </summary>
-        /// <returns>A list of all tournaments.</returns>
-        public List<Turnuvalar> Listele()
+        /// <param name="turnuvalar">The list of all tournaments.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Turnuvalar> turnuvalar)
         {
-            List<Turnuvalar> turnuvalar = new List<Turnuvalar>();
+            string hata = null;
+            turnuvalar = new List<Turnuvalar>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -84,25 +91,27 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return turnuvalar;
+            return hata;
         }
 
         /// <summary>
         /// Creates tournament pairings (bracket) for a tournament.
         /// Fetches random active users and creates pairs based on user count.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
-        /// <returns>A list of paired user IDs (each pair represents a match).</returns>
-        public List<KeyValuePair<int, int>> EslestirmeleriOlustur(int turnuvaID)
+        /// <param name="turnuvaId">The tournament ID.</param>
+        /// <param name="eslestirmeler">A list of paired user IDs (each pair represents a match).</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string EslestirmeleriOlustur(int turnuvaId, out List<KeyValuePair<int, int>> eslestirmeler)
         {
-            List<KeyValuePair<int, int>> eslestirmeler = new List<KeyValuePair<int, int>>();
+            string hata = null;
+            eslestirmeler = new List<KeyValuePair<int, int>>();
             List<int> uyeIDler = new List<int>();
 
             try
@@ -130,7 +139,7 @@ namespace GameCenterAI.Service
                 // Minimum 2 kişi gerekiyor
                 if (uyeIDler.Count < 2)
                 {
-                    throw new Exception("Turnuva için en az 2 aktif üye gereklidir.");
+                    return "Turnuva için en az 2 aktif üye gereklidir.";
                 }
 
                 // Çift sayıda üye olması gerekiyor (eşleştirme için)
@@ -150,30 +159,32 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Eşleştirme oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return eslestirmeler;
+            return hata;
         }
 
         /// <summary>
         /// Creates tournament matches in database from pairings.
         /// Dynamically determines the starting round based on the number of matches.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
+        /// <param name="turnuvaId">The tournament ID.</param>
         /// <param name="eslestirmeler">List of pairings.</param>
-        /// <returns>True if successful.</returns>
-        public bool MaclariOlustur(int turnuvaID, List<KeyValuePair<int, int>> eslestirmeler)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string MaclariOlustur(int turnuvaId, List<KeyValuePair<int, int>> eslestirmeler)
         {
+            string hata = null;
+            
             try
             {
                 Tools.OpenConnection();
                 int macNo = 1;
-                int macSayisi = eslestirmeler.Count;
+                int macSayisi = eslestirmeler != null ? eslestirmeler.Count : 0;
                 
                 // Maç sayısına göre tur belirle
                 string tur = "";
@@ -212,7 +223,7 @@ namespace GameCenterAI.Service
                         INSERT INTO TurnuvaMaclari (TurnuvaID, Uye1ID, Uye2ID, Tur, MacNo, Durum)
                         VALUES (@TurnuvaID, @Uye1ID, @Uye2ID, @Tur, @MacNo, 'Beklemede')";
 
-                    command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                    command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
                     command.Parameters.AddWithValue("@Uye1ID", eslestirme.Key);
                     command.Parameters.AddWithValue("@Uye2ID", eslestirme.Value);
                     command.Parameters.AddWithValue("@Tur", tur);
@@ -221,33 +232,36 @@ namespace GameCenterAI.Service
                     command.ExecuteNonQuery();
                     macNo++;
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Maç oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
+
+            return hata;
         }
 
         /// <summary>
         /// Gets a tournament by ID.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
-        /// <returns>The tournament entity.</returns>
-        public Turnuvalar Getir(int turnuvaID)
+        /// <param name="turnuvaId">The tournament ID.</param>
+        /// <param name="turnuva">The tournament entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int turnuvaId, out Turnuvalar turnuva)
         {
-            Turnuvalar turnuva = null;
+            string hata = null;
+            turnuva = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT TurnuvaID, TurnuvaAdi, BaslangicTarihi, Odul, Durum FROM Turnuvalar WHERE TurnuvaID = @TurnuvaID";
 
-            command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+            command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
 
             try
             {
@@ -270,24 +284,25 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return turnuva;
+            return hata;
         }
 
         /// <summary>
         /// Updates an existing tournament.
         /// </summary>
         /// <param name="turnuva">The tournament entity to update.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool Guncelle(Turnuvalar turnuva)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Guncelle(Turnuvalar turnuva)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -303,29 +318,32 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Turnuva güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Deletes a tournament.
         /// First deletes all related matches, then deletes the tournament.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID to delete.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool Sil(int turnuvaID)
+        /// <param name="turnuvaId">The tournament ID to delete.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Sil(int turnuvaId)
         {
-            bool result = false;
+            string hata = null;
 
             try
             {
@@ -336,7 +354,7 @@ namespace GameCenterAI.Service
                 deleteMaclarCommand.Connection = Tools.Connection;
                 deleteMaclarCommand.CommandType = CommandType.Text;
                 deleteMaclarCommand.CommandText = "DELETE FROM TurnuvaMaclari WHERE TurnuvaID = @TurnuvaID";
-                deleteMaclarCommand.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                deleteMaclarCommand.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
                 deleteMaclarCommand.ExecuteNonQuery();
 
                 // Then, delete the tournament
@@ -344,31 +362,69 @@ namespace GameCenterAI.Service
                 deleteTurnuvaCommand.Connection = Tools.Connection;
                 deleteTurnuvaCommand.CommandType = CommandType.Text;
                 deleteTurnuvaCommand.CommandText = "DELETE FROM Turnuvalar WHERE TurnuvaID = @TurnuvaID";
-                deleteTurnuvaCommand.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                deleteTurnuvaCommand.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
 
                 int affectedRows = deleteTurnuvaCommand.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Turnuva silme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva silme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
+        }
+
+        /// <summary>
+        /// Deletes tournament matches by tournament ID.
+        /// </summary>
+        /// <param name="turnuvaId">The tournament ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string TurnuvaMaclariSil(int turnuvaId)
+        {
+            string hata = null;
+            
+            SqlCommand command = new SqlCommand();
+            command.Connection = Tools.Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "DELETE FROM TurnuvaMaclari WHERE TurnuvaID = @TurnuvaID";
+            command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
+
+            try
+            {
+                Tools.OpenConnection();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                hata = ex.Message;
+            }
+            finally
+            {
+                Tools.CloseConnection();
+            }
+
+            return hata;
         }
 
         /// <summary>
         /// Gets all matches for a tournament.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
-        /// <returns>A list of tournament matches.</returns>
-        public List<TurnuvaMaclari> MaclariGetir(int turnuvaID)
+        /// <param name="turnuvaId">The tournament ID.</param>
+        /// <param name="maclar">The list of tournament matches.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string MaclariGetir(int turnuvaId, out List<TurnuvaMaclari> maclar)
         {
-            List<TurnuvaMaclari> maclar = new List<TurnuvaMaclari>();
+            string hata = null;
+            maclar = new List<TurnuvaMaclari>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -385,7 +441,7 @@ namespace GameCenterAI.Service
                     END,
                     MacNo";
 
-            command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+            command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
 
             try
             {
@@ -415,25 +471,28 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Maç listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return maclar;
+            return hata;
         }
 
         /// <summary>
         /// Gets matches for a specific round.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
+        /// <param name="turnuvaId">The tournament ID.</param>
         /// <param name="tur">The round name.</param>
-        /// <returns>A list of matches for the round.</returns>
-        public List<TurnuvaMaclari> MaclariGetirByTur(int turnuvaID, string tur)
+        /// <param name="maclar">The list of matches for the round.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string MaclariGetirByTur(int turnuvaId, string tur, out List<TurnuvaMaclari> maclar)
         {
-            List<TurnuvaMaclari> maclar = new List<TurnuvaMaclari>();
+            string hata = null;
+            maclar = new List<TurnuvaMaclari>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -443,7 +502,7 @@ namespace GameCenterAI.Service
                 WHERE TurnuvaID = @TurnuvaID AND Tur = @Tur
                 ORDER BY MacNo";
 
-            command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+            command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
             command.Parameters.AddWithValue("@Tur", tur);
 
             try
@@ -474,24 +533,25 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Maç listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return maclar;
+            return hata;
         }
 
         /// <summary>
         /// Saves match result (score).
         /// </summary>
         /// <param name="mac">The match entity with results.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool MacSonucuKaydet(TurnuvaMaclari mac)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string MacSonucuKaydet(TurnuvaMaclari mac)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -511,28 +571,34 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Maç sonucu kaydetme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Maç sonucu kaydetme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Gets a match by ID.
         /// </summary>
-        /// <param name="macID">The match ID.</param>
-        /// <returns>The match entity.</returns>
-        public TurnuvaMaclari MacGetir(int macID)
+        /// <param name="macId">The match ID.</param>
+        /// <param name="mac">The match entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string MacGetir(int macId, out TurnuvaMaclari mac)
         {
-            TurnuvaMaclari mac = null;
+            string hata = null;
+            mac = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -541,7 +607,7 @@ namespace GameCenterAI.Service
                 FROM TurnuvaMaclari
                 WHERE MacID = @MacID";
 
-            command.Parameters.AddWithValue("@MacID", macID);
+            command.Parameters.AddWithValue("@MacID", macId);
 
             try
             {
@@ -570,35 +636,43 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Maç getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return mac;
+            return hata;
         }
 
         /// <summary>
         /// Advances winners to the next round and creates new matches.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
+        /// <param name="turnuvaId">The tournament ID.</param>
         /// <param name="tur">The current round name.</param>
-        /// <returns>True if the operation is successful, false otherwise.</returns>
-        public bool SonrakiTuraGec(int turnuvaID, string tur)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string SonrakiTuraGec(int turnuvaId, string tur)
         {
+            string hata = null;
+            
             try
             {
                 // Get completed matches from current round
-                var tamamlananMaclar = MaclariGetirByTur(turnuvaID, tur)
+                string hataMaclar = MaclariGetirByTur(turnuvaId, tur, out List<TurnuvaMaclari> tamamlananMaclar);
+                if (hataMaclar != null)
+                {
+                    return hataMaclar;
+                }
+                
+                tamamlananMaclar = tamamlananMaclar
                     .Where(m => m.Durum == "Sonuçlandı" && m.KazananID.HasValue)
                     .OrderBy(m => m.MacNo)
                     .ToList();
 
-                if (tamamlananMaclar.Count == 0)
+                if (tamamlananMaclar == null || tamamlananMaclar.Count == 0)
                 {
-                    throw new Exception("Sonraki tura geçmek için tüm maçların sonuçlandırılması gerekiyor.");
+                    return "Sonraki tura geçmek için tüm maçların sonuçlandırılması gerekiyor.";
                 }
 
                 string yeniTur = "";
@@ -609,11 +683,11 @@ namespace GameCenterAI.Service
                     yeniTur = "Yarı Final";
                     if (tamamlananMaclar.Count < 2)
                     {
-                        throw new Exception($"Yarı finale geçmek için en az 2 maçın sonuçlandırılması gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.");
+                        return $"Yarı finale geçmek için en az 2 maçın sonuçlandırılması gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.";
                     }
                     if (tamamlananMaclar.Count % 2 != 0)
                     {
-                        throw new Exception($"Yarı finale geçmek için çift sayıda maç gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.");
+                        return $"Yarı finale geçmek için çift sayıda maç gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.";
                     }
                 }
                 else if (tur.Contains("Yarı Final"))
@@ -621,21 +695,21 @@ namespace GameCenterAI.Service
                     yeniTur = "Final";
                     if (tamamlananMaclar.Count < 2)
                     {
-                        throw new Exception($"Finale geçmek için en az 2 maçın sonuçlandırılması gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.");
+                        return $"Finale geçmek için en az 2 maçın sonuçlandırılması gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.";
                     }
                     if (tamamlananMaclar.Count % 2 != 0)
                     {
-                        throw new Exception($"Finale geçmek için çift sayıda maç gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.");
+                        return $"Finale geçmek için çift sayıda maç gerekiyor. Şu anda {tamamlananMaclar.Count} maç sonuçlandı.";
                     }
                 }
                 else if (tur.Contains("Final"))
                 {
                     // Final tamamlandı, turnuvayı bitir
-                    throw new Exception("Final maçı tamamlandı. Turnuvayı tamamlamak için 'Turnuvayı Tamamla' butonunu kullanın.");
+                    return "Final maçı tamamlandı. Turnuvayı tamamlamak için 'Turnuvayı Tamamla' butonunu kullanın.";
                 }
                 else
                 {
-                    throw new Exception($"Bilinmeyen tur: {tur}. Sonraki tura geçilemiyor.");
+                    return $"Bilinmeyen tur: {tur}. Sonraki tura geçilemiyor.";
                 }
 
                 Tools.OpenConnection();
@@ -653,7 +727,7 @@ namespace GameCenterAI.Service
                             INSERT INTO TurnuvaMaclari (TurnuvaID, Uye1ID, Uye2ID, Tur, MacNo, Durum)
                             VALUES (@TurnuvaID, @Uye1ID, @Uye2ID, @Tur, @MacNo, 'Beklemede')";
 
-                        command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                        command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
                         command.Parameters.AddWithValue("@Uye1ID", tamamlananMaclar[i].KazananID.Value);
                         command.Parameters.AddWithValue("@Uye2ID", tamamlananMaclar[i + 1].KazananID.Value);
                         command.Parameters.AddWithValue("@Tur", yeniTur);
@@ -663,27 +737,31 @@ namespace GameCenterAI.Service
                         macNo++;
                     }
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Sonraki tura geçiş işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
+
+            return hata;
         }
 
         /// <summary>
         /// Finalizes the tournament when the final match is completed.
         /// Updates tournament status to "Tamamlandı" and awards prize to winner.
         /// </summary>
-        /// <param name="turnuvaID">The tournament ID.</param>
-        /// <returns>The winner's user ID, or null if tournament is not completed.</returns>
-        public int? TurnuvayiTamamla(int turnuvaID)
+        /// <param name="turnuvaId">The tournament ID.</param>
+        /// <param name="kazananId">The winner's user ID, or null if tournament is not completed.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string TurnuvayiTamamla(int turnuvaId, out int? kazananId)
         {
+            string hata = null;
+            kazananId = null;
+            
             try
             {
                 Tools.OpenConnection();
@@ -698,36 +776,36 @@ namespace GameCenterAI.Service
                     WHERE TurnuvaID = @TurnuvaID AND Tur = 'Final'
                     ORDER BY MacNo";
 
-                command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
 
                 SqlDataReader reader = command.ExecuteReader();
                 if (!reader.Read())
                 {
                     reader.Close();
-                    throw new Exception("Final maçı bulunamadı.");
+                    return "Final maçı bulunamadı.";
                 }
 
                 string durum = reader["Durum"].ToString();
-                int? kazananID = reader["KazananID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["KazananID"]) : null;
+                kazananId = reader["KazananID"] != DBNull.Value ? (int?)Convert.ToInt32(reader["KazananID"]) : null;
 
                 reader.Close();
 
-                if (durum != "Sonuçlandı" || !kazananID.HasValue)
+                if (durum != "Sonuçlandı" || !kazananId.HasValue)
                 {
-                    throw new Exception("Final maçı henüz sonuçlandırılmamış.");
+                    return "Final maçı henüz sonuçlandırılmamış.";
                 }
 
                 // Turnuva bilgilerini al
-                Turnuvalar turnuva = Getir(turnuvaID);
-                if (turnuva == null)
+                string hataGetir = Getir(turnuvaId, out Turnuvalar turnuva);
+                if (hataGetir != null || turnuva == null)
                 {
-                    throw new Exception("Turnuva bulunamadı.");
+                    return hataGetir ?? "Turnuva bulunamadı.";
                 }
 
                 // Turnuva durumunu "Tamamlandı" olarak güncelle
                 command.Parameters.Clear();
                 command.CommandText = "UPDATE Turnuvalar SET Durum = 'Tamamlandı' WHERE TurnuvaID = @TurnuvaID";
-                command.Parameters.AddWithValue("@TurnuvaID", turnuvaID);
+                command.Parameters.AddWithValue("@TurnuvaID", turnuvaId);
                 command.ExecuteNonQuery();
 
                 // Kazanan üyeye ödül ekle
@@ -736,20 +814,20 @@ namespace GameCenterAI.Service
                     command.Parameters.Clear();
                     command.CommandText = "UPDATE Uyeler SET Bakiye = Bakiye + @Odul WHERE UyeID = @UyeID";
                     command.Parameters.AddWithValue("@Odul", turnuva.Odul);
-                    command.Parameters.AddWithValue("@UyeID", kazananID.Value);
+                    command.Parameters.AddWithValue("@UyeID", kazananId.Value);
                     command.ExecuteNonQuery();
                 }
-
-                return kazananID.Value;
             }
             catch (Exception ex)
             {
-                throw new Exception("Turnuva tamamlama işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
+
+            return hata;
         }
     }
 }

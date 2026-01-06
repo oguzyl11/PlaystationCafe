@@ -17,10 +17,13 @@ namespace GameCenterAI.Service
         /// Creates a new invoice from a transaction.
         /// </summary>
         /// <param name="fatura">The invoice entity to create.</param>
-        /// <returns>The created invoice ID.</returns>
-        public int Olustur(Faturalar fatura)
+        /// <param name="faturaId">The created invoice ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Olustur(Faturalar fatura, out int faturaId)
         {
-            int faturaID = 0;
+            string hata = null;
+            faturaId = 0;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -45,29 +48,36 @@ namespace GameCenterAI.Service
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    faturaID = Convert.ToInt32(result);
+                    faturaId = Convert.ToInt32(result);
+                }
+                else
+                {
+                    hata = "Fatura oluşturma işlemi başarısız oldu.";
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return faturaID;
+            return hata;
         }
 
         /// <summary>
         /// Gets an invoice by ID.
         /// </summary>
-        /// <param name="faturaID">The invoice ID.</param>
-        /// <returns>The invoice entity.</returns>
-        public Faturalar Getir(int faturaID)
+        /// <param name="faturaId">The invoice ID.</param>
+        /// <param name="fatura">The invoice entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int faturaId, out Faturalar fatura)
         {
-            Faturalar fatura = null;
+            string hata = null;
+            fatura = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -76,7 +86,7 @@ namespace GameCenterAI.Service
                 FROM Faturalar
                 WHERE FaturaID = @FaturaID";
 
-            command.Parameters.AddWithValue("@FaturaID", faturaID);
+            command.Parameters.AddWithValue("@FaturaID", faturaId);
 
             try
             {
@@ -104,23 +114,26 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return fatura;
+            return hata;
         }
 
         /// <summary>
         /// Gets all invoices.
         /// </summary>
-        /// <returns>A list of all invoices.</returns>
-        public List<Faturalar> Listele()
+        /// <param name="faturalar">The list of all invoices.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Faturalar> faturalar)
         {
-            List<Faturalar> faturalar = new List<Faturalar>();
+            string hata = null;
+            faturalar = new List<Faturalar>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -156,14 +169,14 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return faturalar;
+            return hata;
         }
 
         /// <summary>
@@ -171,10 +184,13 @@ namespace GameCenterAI.Service
         /// </summary>
         /// <param name="baslangic">Start date.</param>
         /// <param name="bitis">End date.</param>
-        /// <returns>A list of invoices in the date range.</returns>
-        public List<Faturalar> TarihAraligindaGetir(DateTime baslangic, DateTime bitis)
+        /// <param name="faturalar">The list of invoices in the date range.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string TarihAraligindaGetir(DateTime baslangic, DateTime bitis, out List<Faturalar> faturalar)
         {
-            List<Faturalar> faturalar = new List<Faturalar>();
+            string hata = null;
+            faturalar = new List<Faturalar>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -214,24 +230,27 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura tarih aralığı getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return faturalar;
+            return hata;
         }
 
         /// <summary>
         /// Gets invoice by transaction ID.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>The invoice entity if found, null otherwise.</returns>
-        public Faturalar HareketIDyeGoreGetir(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="fatura">The invoice entity if found, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string HareketIDyeGoreGetir(int hareketId, out Faturalar fatura)
         {
-            Faturalar fatura = null;
+            string hata = null;
+            fatura = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -240,7 +259,7 @@ namespace GameCenterAI.Service
                 FROM Faturalar
                 WHERE HareketID = @HareketID";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
 
             try
             {
@@ -268,23 +287,26 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura hareket ID'ye göre getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return fatura;
+            return hata;
         }
 
         /// <summary>
         /// Generates a unique invoice number.
         /// </summary>
-        /// <returns>A unique invoice number.</returns>
-        public string FaturaNoOlustur()
+        /// <param name="faturaNo">A unique invoice number.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string FaturaNoOlustur(out string faturaNo)
         {
-            string faturaNo = string.Empty;
+            string hata = null;
+            faturaNo = string.Empty;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -302,50 +324,53 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura numarası oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return faturaNo;
+            return hata;
         }
 
         /// <summary>
         /// Updates invoice status.
         /// </summary>
-        /// <param name="faturaID">The invoice ID.</param>
+        /// <param name="faturaId">The invoice ID.</param>
         /// <param name="durum">The new status.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool DurumGuncelle(int faturaID, string durum)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string DurumGuncelle(int faturaId, string durum)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Faturalar SET Durum = @Durum WHERE FaturaID = @FaturaID";
 
-            command.Parameters.AddWithValue("@FaturaID", faturaID);
+            command.Parameters.AddWithValue("@FaturaID", faturaId);
             command.Parameters.AddWithValue("@Durum", durum);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Fatura durum güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Fatura durum güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }
-

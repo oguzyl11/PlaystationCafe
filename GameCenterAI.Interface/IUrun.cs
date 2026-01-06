@@ -11,52 +11,55 @@ namespace GameCenterAI.Interface
         /// <summary>
         /// Gets all products.
         /// </summary>
-        /// <returns>A list of all products.</returns>
-        List<Urunler> Listele();
+        /// <param name="urunler">The list of all products.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Listele(out List<Urunler> urunler);
 
         /// <summary>
         /// Gets products by category.
         /// </summary>
         /// <param name="kategori">The category name.</param>
-        /// <returns>A list of products in the category.</returns>
-        List<Urunler> GetirByKategori(string kategori);
+        /// <param name="urunler">The list of products in the category.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string GetirByKategori(string kategori, out List<Urunler> urunler);
 
         /// <summary>
         /// Gets a product by ID.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
-        /// <returns>The product entity.</returns>
-        Urunler Getir(int urunID);
+        /// <param name="urunId">The product ID.</param>
+        /// <param name="urun">The product entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Getir(int urunId, out Urunler urun);
 
         /// <summary>
         /// Gets a product by name.
         /// </summary>
         /// <param name="urunAdi">The product name.</param>
-        /// <returns>The product entity if found, null otherwise.</returns>
-        Urunler GetirByUrunAdi(string urunAdi);
+        /// <param name="urun">The product entity if found, null otherwise.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string GetirByUrunAdi(string urunAdi, out Urunler urun);
 
         /// <summary>
         /// Updates stock for a product.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
+        /// <param name="urunId">The product ID.</param>
         /// <param name="yeniStok">The new stock amount.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool StokGuncelle(int urunID, int yeniStok);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string StokGuncelle(int urunId, int yeniStok);
 
         /// <summary>
         /// Updates price for a product.
         /// </summary>
-        /// <param name="urunID">The product ID.</param>
+        /// <param name="urunId">The product ID.</param>
         /// <param name="yeniFiyat">The new price.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool FiyatGuncelle(int urunID, decimal yeniFiyat);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string FiyatGuncelle(int urunId, decimal yeniFiyat);
 
         /// <summary>
         /// Adds a new product.
         /// </summary>
         /// <param name="urun">The product entity to add.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool Ekle(Urunler urun);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Ekle(Urunler urun);
     }
 }
-

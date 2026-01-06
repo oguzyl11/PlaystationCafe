@@ -54,7 +54,7 @@ namespace GameCenterAI.WinForms
             this._gridControlRaporlar.Location = new System.Drawing.Point(12, 80);
             this._gridControlRaporlar.MainView = this._gridViewRaporlar;
             this._gridControlRaporlar.Name = "_gridControlRaporlar";
-            this._gridControlRaporlar.Size = new System.Drawing.Size(900, 470);
+            this._gridControlRaporlar.Size = new System.Drawing.Size(746, 610);
             this._gridControlRaporlar.TabIndex = 0;
             this._gridControlRaporlar.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewRaporlar});
@@ -146,7 +146,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(924, 562);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._dateEditBitis);
             this.Controls.Add(this._lblBitis);
             this.Controls.Add(this._dateEditBaslangic);

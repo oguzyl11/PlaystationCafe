@@ -117,6 +117,7 @@
     <Compile Include="IHareket.cs" />
     <Compile Include="IRapor.cs" />
     <Compile Include="IFatura.cs" />
+    <Compile Include="IOyunlar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

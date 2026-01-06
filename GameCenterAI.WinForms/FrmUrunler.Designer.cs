@@ -46,10 +46,10 @@ namespace GameCenterAI.WinForms
             this._gridControlUrunler.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._gridControlUrunler.Location = new System.Drawing.Point(12, 80);
+            this._gridControlUrunler.Location = new System.Drawing.Point(12, 60);
             this._gridControlUrunler.MainView = this._gridViewUrunler;
             this._gridControlUrunler.Name = "_gridControlUrunler";
-            this._gridControlUrunler.Size = new System.Drawing.Size(900, 470);
+            this._gridControlUrunler.Size = new System.Drawing.Size(746, 630);
             this._gridControlUrunler.TabIndex = 0;
             this._gridControlUrunler.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewUrunler});
@@ -132,11 +132,11 @@ namespace GameCenterAI.WinForms
             // 
             // _txtArama
             // 
-            this._txtArama.Location = new System.Drawing.Point(564, 22);
+            this._txtArama.Location = new System.Drawing.Point(560, 22);
             this._txtArama.Name = "_txtArama";
             this._txtArama.Properties.NullValuePrompt = "Ürün Adı, Kategori, Fiyat veya Stok ara...";
             this._txtArama.Properties.NullValuePromptShowForEmptyValue = true;
-            this._txtArama.Size = new System.Drawing.Size(348, 20);
+            this._txtArama.Size = new System.Drawing.Size(200, 20);
             this._txtArama.TabIndex = 6;
             this._txtArama.TextChanged += new System.EventHandler(this.TxtArama_TextChanged);
             // 
@@ -145,7 +145,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(924, 562);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._txtArama);
             this.Controls.Add(this._lblArama);
             this.Controls.Add(this._btnYenile);

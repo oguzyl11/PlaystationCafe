@@ -11,15 +11,16 @@ namespace GameCenterAI.Interface
         /// <summary>
         /// Gets all tariffs.
         /// </summary>
-        /// <returns>A list of all tariffs.</returns>
-        List<Tarifeler> Listele();
+        /// <param name="tarifeler">The list of all tariffs.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Listele(out List<Tarifeler> tarifeler);
 
         /// <summary>
         /// Gets a tariff by ID.
         /// </summary>
-        /// <param name="tarifeID">The tariff ID.</param>
-        /// <returns>The tariff entity.</returns>
-        Tarifeler Getir(int tarifeID);
+        /// <param name="tarifeId">The tariff ID.</param>
+        /// <param name="tarife">The tariff entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Getir(int tarifeId, out Tarifeler tarife);
     }
 }
-

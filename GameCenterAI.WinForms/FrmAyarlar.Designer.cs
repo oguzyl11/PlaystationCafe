@@ -80,7 +80,7 @@ namespace GameCenterAI.WinForms
             this._tabControlAyarlar.Location = new System.Drawing.Point(12, 12);
             this._tabControlAyarlar.Name = "_tabControlAyarlar";
             this._tabControlAyarlar.SelectedTabPage = this._tabPageGenel;
-            this._tabControlAyarlar.Size = new System.Drawing.Size(900, 550);
+            this._tabControlAyarlar.Size = new System.Drawing.Size(746, 600);
             this._tabControlAyarlar.TabIndex = 0;
             this._tabControlAyarlar.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this._tabPageGenel,
@@ -96,7 +96,7 @@ namespace GameCenterAI.WinForms
             this._tabPageGenel.Controls.Add(this._spinKdvOrani);
             this._tabPageGenel.Controls.Add(this._lblKdvOrani);
             this._tabPageGenel.Name = "_tabPageGenel";
-            this._tabPageGenel.Size = new System.Drawing.Size(894, 522);
+            this._tabPageGenel.Size = new System.Drawing.Size(740, 575);
             this._tabPageGenel.Text = "⚙️ Genel Ayarlar";
             // 
             // _lblKdvOrani
@@ -148,7 +148,7 @@ namespace GameCenterAI.WinForms
             // 
             this._txtFaturaBaslik.Location = new System.Drawing.Point(120, 58);
             this._txtFaturaBaslik.Name = "_txtFaturaBaslik";
-            this._txtFaturaBaslik.Size = new System.Drawing.Size(400, 20);
+            this._txtFaturaBaslik.Size = new System.Drawing.Size(300, 20);
             this._txtFaturaBaslik.TabIndex = 3;
             // 
             // _lblFaturaAltBilgi
@@ -165,7 +165,7 @@ namespace GameCenterAI.WinForms
             // 
             this._txtFaturaAltBilgi.Location = new System.Drawing.Point(120, 98);
             this._txtFaturaAltBilgi.Name = "_txtFaturaAltBilgi";
-            this._txtFaturaAltBilgi.Size = new System.Drawing.Size(400, 100);
+            this._txtFaturaAltBilgi.Size = new System.Drawing.Size(300, 100);
             this._txtFaturaAltBilgi.TabIndex = 5;
             // 
             // _tabPageVeritabani
@@ -177,7 +177,7 @@ namespace GameCenterAI.WinForms
             this._tabPageVeritabani.Controls.Add(this._txtServer);
             this._tabPageVeritabani.Controls.Add(this._lblServer);
             this._tabPageVeritabani.Name = "_tabPageVeritabani";
-            this._tabPageVeritabani.Size = new System.Drawing.Size(894, 522);
+            this._tabPageVeritabani.Size = new System.Drawing.Size(740, 575);
             this._tabPageVeritabani.Text = "🗄️ Veritabanı Ayarları";
             // 
             // _lblServer
@@ -247,7 +247,7 @@ namespace GameCenterAI.WinForms
             this._tabPageTarifeler.Controls.Add(this._btnTarifeEkle);
             this._tabPageTarifeler.Controls.Add(this._gridControlTarifeler);
             this._tabPageTarifeler.Name = "_tabPageTarifeler";
-            this._tabPageTarifeler.Size = new System.Drawing.Size(894, 522);
+            this._tabPageTarifeler.Size = new System.Drawing.Size(740, 575);
             this._tabPageTarifeler.Text = "💰 Tarife Ayarları";
             // 
             // _gridControlTarifeler
@@ -258,7 +258,7 @@ namespace GameCenterAI.WinForms
             this._gridControlTarifeler.Location = new System.Drawing.Point(20, 60);
             this._gridControlTarifeler.MainView = this._gridViewTarifeler;
             this._gridControlTarifeler.Name = "_gridControlTarifeler";
-            this._gridControlTarifeler.Size = new System.Drawing.Size(850, 440);
+            this._gridControlTarifeler.Size = new System.Drawing.Size(700, 500);
             this._gridControlTarifeler.TabIndex = 0;
             this._gridControlTarifeler.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewTarifeler});
@@ -323,7 +323,7 @@ namespace GameCenterAI.WinForms
             this._btnKaydet.Appearance.Options.UseFont = true;
             this._btnKaydet.Appearance.Options.UseBackColor = true;
             this._btnKaydet.Appearance.Options.UseForeColor = true;
-            this._btnKaydet.Location = new System.Drawing.Point(756, 568);
+            this._btnKaydet.Location = new System.Drawing.Point(680, 650);
             this._btnKaydet.Name = "_btnKaydet";
             this._btnKaydet.Size = new System.Drawing.Size(75, 40);
             this._btnKaydet.TabIndex = 1;
@@ -339,7 +339,7 @@ namespace GameCenterAI.WinForms
             this._btnIptal.Appearance.Options.UseFont = true;
             this._btnIptal.Appearance.Options.UseBackColor = true;
             this._btnIptal.Appearance.Options.UseForeColor = true;
-            this._btnIptal.Location = new System.Drawing.Point(837, 568);
+            this._btnIptal.Location = new System.Drawing.Point(590, 650);
             this._btnIptal.Name = "_btnIptal";
             this._btnIptal.Size = new System.Drawing.Size(75, 40);
             this._btnIptal.TabIndex = 2;
@@ -351,7 +351,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(924, 620);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._btnIptal);
             this.Controls.Add(this._btnKaydet);
             this.Controls.Add(this._tabControlAyarlar);

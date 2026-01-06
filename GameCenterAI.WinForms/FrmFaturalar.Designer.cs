@@ -52,10 +52,10 @@ namespace GameCenterAI.WinForms
             this._gridControlFaturalar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._gridControlFaturalar.Location = new System.Drawing.Point(12, 80);
+            this._gridControlFaturalar.Location = new System.Drawing.Point(12, 60);
             this._gridControlFaturalar.MainView = this._gridViewFaturalar;
             this._gridControlFaturalar.Name = "_gridControlFaturalar";
-            this._gridControlFaturalar.Size = new System.Drawing.Size(1000, 600);
+            this._gridControlFaturalar.Size = new System.Drawing.Size(746, 630);
             this._gridControlFaturalar.TabIndex = 0;
             this._gridControlFaturalar.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewFaturalar});
@@ -129,30 +129,30 @@ namespace GameCenterAI.WinForms
             // _dateEditBaslangic
             // 
             this._dateEditBaslangic.EditValue = null;
-            this._dateEditBaslangic.Location = new System.Drawing.Point(500, 20);
+            this._dateEditBaslangic.Location = new System.Drawing.Point(370, 20);
             this._dateEditBaslangic.Name = "_dateEditBaslangic";
+            this._dateEditBaslangic.Size = new System.Drawing.Size(120, 20);
             this._dateEditBaslangic.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this._dateEditBaslangic.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this._dateEditBaslangic.Size = new System.Drawing.Size(150, 20);
             this._dateEditBaslangic.TabIndex = 5;
             // 
             // _dateEditBitis
             // 
             this._dateEditBitis.EditValue = null;
-            this._dateEditBitis.Location = new System.Drawing.Point(700, 20);
+            this._dateEditBitis.Location = new System.Drawing.Point(500, 20);
             this._dateEditBitis.Name = "_dateEditBitis";
+            this._dateEditBitis.Size = new System.Drawing.Size(120, 20);
             this._dateEditBitis.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this._dateEditBitis.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this._dateEditBitis.Size = new System.Drawing.Size(150, 20);
             this._dateEditBitis.TabIndex = 6;
             // 
             // _lblBaslangic
             // 
-            this._lblBaslangic.Location = new System.Drawing.Point(500, 5);
+            this._lblBaslangic.Location = new System.Drawing.Point(370, 5);
             this._lblBaslangic.Name = "_lblBaslangic";
             this._lblBaslangic.Size = new System.Drawing.Size(60, 13);
             this._lblBaslangic.TabIndex = 7;
@@ -160,7 +160,7 @@ namespace GameCenterAI.WinForms
             // 
             // _lblBitis
             // 
-            this._lblBitis.Location = new System.Drawing.Point(700, 5);
+            this._lblBitis.Location = new System.Drawing.Point(500, 5);
             this._lblBitis.Name = "_lblBitis";
             this._lblBitis.Size = new System.Drawing.Size(33, 13);
             this._lblBitis.TabIndex = 8;
@@ -174,7 +174,7 @@ namespace GameCenterAI.WinForms
             this._btnFiltrele.Appearance.Options.UseFont = true;
             this._btnFiltrele.Appearance.Options.UseBackColor = true;
             this._btnFiltrele.Appearance.Options.UseForeColor = true;
-            this._btnFiltrele.Location = new System.Drawing.Point(870, 12);
+            this._btnFiltrele.Location = new System.Drawing.Point(630, 12);
             this._btnFiltrele.Name = "_btnFiltrele";
             this._btnFiltrele.Size = new System.Drawing.Size(100, 40);
             this._btnFiltrele.TabIndex = 9;
@@ -186,7 +186,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1024, 692);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._btnFiltrele);
             this.Controls.Add(this._lblBitis);
             this.Controls.Add(this._lblBaslangic);
@@ -200,7 +200,6 @@ namespace GameCenterAI.WinForms
             this.Name = "FrmFaturalar";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameCenter AI - Faturalar";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this._gridControlFaturalar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._gridViewFaturalar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._dateEditBaslangic.Properties.CalendarTimeProperties)).EndInit();

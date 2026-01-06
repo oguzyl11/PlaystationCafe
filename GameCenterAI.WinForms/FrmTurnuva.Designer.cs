@@ -48,9 +48,9 @@ namespace GameCenterAI.WinForms
             // 
             this._scrollableControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._scrollableControl.Location = new System.Drawing.Point(500, 50);
+            this._scrollableControl.Location = new System.Drawing.Point(360, 50);
             this._scrollableControl.Name = "_scrollableControl";
-            this._scrollableControl.Size = new System.Drawing.Size(500, 700);
+            this._scrollableControl.Size = new System.Drawing.Size(400, 640);
             this._scrollableControl.TabIndex = 0;
             // 
             // _btnTurnuvayiBaslat
@@ -63,9 +63,9 @@ namespace GameCenterAI.WinForms
             this._btnTurnuvayiBaslat.Appearance.Options.UseForeColor = true;
             this._btnTurnuvayiBaslat.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(0, 82, 184);
             this._btnTurnuvayiBaslat.AppearanceHovered.Options.UseBackColor = true;
-            this._btnTurnuvayiBaslat.Location = new System.Drawing.Point(650, 10);
+            this._btnTurnuvayiBaslat.Location = new System.Drawing.Point(460, 10);
             this._btnTurnuvayiBaslat.Name = "_btnTurnuvayiBaslat";
-            this._btnTurnuvayiBaslat.Size = new System.Drawing.Size(200, 40);
+            this._btnTurnuvayiBaslat.Size = new System.Drawing.Size(170, 40);
             this._btnTurnuvayiBaslat.TabIndex = 1;
             this._btnTurnuvayiBaslat.Text = "🚀 Turnuvayı Başlat";
             this._btnTurnuvayiBaslat.Click += new System.EventHandler(this.BtnTurnuvayiBaslat_Click);
@@ -77,7 +77,7 @@ namespace GameCenterAI.WinForms
             this._gridControlTurnuvalar.Location = new System.Drawing.Point(0, 50);
             this._gridControlTurnuvalar.MainView = this._gridViewTurnuvalar;
             this._gridControlTurnuvalar.Name = "_gridControlTurnuvalar";
-            this._gridControlTurnuvalar.Size = new System.Drawing.Size(490, 700);
+            this._gridControlTurnuvalar.Size = new System.Drawing.Size(350, 640);
             this._gridControlTurnuvalar.TabIndex = 4;
             this._gridControlTurnuvalar.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this._gridViewTurnuvalar});
@@ -150,16 +150,16 @@ namespace GameCenterAI.WinForms
             this._btnSonrakiTur.Appearance.Options.UseForeColor = true;
             this._btnSonrakiTur.AppearanceHovered.BackColor = System.Drawing.Color.FromArgb(30, 150, 60);
             this._btnSonrakiTur.AppearanceHovered.Options.UseBackColor = true;
-            this._btnSonrakiTur.Location = new System.Drawing.Point(860, 10);
+            this._btnSonrakiTur.Location = new System.Drawing.Point(640, 10);
             this._btnSonrakiTur.Name = "_btnSonrakiTur";
-            this._btnSonrakiTur.Size = new System.Drawing.Size(140, 40);
+            this._btnSonrakiTur.Size = new System.Drawing.Size(120, 40);
             this._btnSonrakiTur.TabIndex = 9;
             this._btnSonrakiTur.Text = "➡️ Sonraki Tura Geç";
             this._btnSonrakiTur.Click += new System.EventHandler(this.BtnSonrakiTur_Click);
             // 
             // _cmbTurnuvalar
             // 
-            this._cmbTurnuvalar.Location = new System.Drawing.Point(650, 50);
+            this._cmbTurnuvalar.Location = new System.Drawing.Point(360, 50);
             this._cmbTurnuvalar.Name = "_cmbTurnuvalar";
             this._cmbTurnuvalar.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
@@ -170,7 +170,7 @@ namespace GameCenterAI.WinForms
             // 
             // _lblTurnuvaSec
             // 
-            this._lblTurnuvaSec.Location = new System.Drawing.Point(500, 53);
+            this._lblTurnuvaSec.Location = new System.Drawing.Point(360, 30);
             this._lblTurnuvaSec.Name = "_lblTurnuvaSec";
             this._lblTurnuvaSec.Size = new System.Drawing.Size(124, 13);
             this._lblTurnuvaSec.TabIndex = 3;
@@ -181,7 +181,7 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1000, 750);
+            this.ClientSize = new System.Drawing.Size(770, 700);
             this.Controls.Add(this._btnSonrakiTur);
             this.Controls.Add(this._btnYenile);
             this.Controls.Add(this._btnSil);

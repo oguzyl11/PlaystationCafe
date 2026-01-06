@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using GameCenterAI.DataAccess;
 using GameCenterAI.Entity;
 using GameCenterAI.Service;
 
@@ -54,7 +51,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                var turnuvalar = _turnuvaService.Listele();
+                string hata = _turnuvaService.Listele(out List<Turnuvalar> turnuvalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Turnuvalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _cmbTurnuvalar.Properties.Items.Clear();
                 _cmbTurnuvalar.Properties.Items.Add("-- Turnuva Seçiniz --");
 
@@ -85,7 +87,12 @@ namespace GameCenterAI.WinForms
             try
             {
                 // Get selected tournament ID
-                var turnuvalar = _turnuvaService.Listele();
+                string hata = _turnuvaService.Listele(out List<Turnuvalar> turnuvalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Turnuvalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 if (_cmbTurnuvalar.SelectedIndex > 0 && _cmbTurnuvalar.SelectedIndex <= turnuvalar.Count)
                 {
                     _seciliTurnuvaID = turnuvalar[_cmbTurnuvalar.SelectedIndex - 1].TurnuvaID;
@@ -97,8 +104,8 @@ namespace GameCenterAI.WinForms
                 }
 
                 // Check if matches already exist
-                var mevcutMaclar = _turnuvaService.MaclariGetir(_seciliTurnuvaID);
-                if (mevcutMaclar.Count > 0)
+                string hataMevcut = _turnuvaService.MaclariGetir(_seciliTurnuvaID, out List<TurnuvaMaclari> mevcutMaclar);
+                if (hataMevcut == null && mevcutMaclar != null && mevcutMaclar.Count > 0)
                 {
                     if (XtraMessageBox.Show("Bu turnuva için zaten maçlar oluşturulmuş. Yeni maçlar oluşturmak istiyor musunuz? (Mevcut maçlar silinecek)", "Uyarı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                     {
@@ -107,37 +114,31 @@ namespace GameCenterAI.WinForms
                     }
                     
                     // Mevcut maçları sil
-                    try
+                    string hataSil = _turnuvaService.TurnuvaMaclariSil(_seciliTurnuvaID);
+                    if (hataSil != null)
                     {
-                        Tools.OpenConnection();
-                        SqlCommand deleteCommand = new SqlCommand();
-                        deleteCommand.Connection = Tools.Connection;
-                        deleteCommand.CommandType = CommandType.Text;
-                        deleteCommand.CommandText = "DELETE FROM TurnuvaMaclari WHERE TurnuvaID = @TurnuvaID";
-                        deleteCommand.Parameters.AddWithValue("@TurnuvaID", _seciliTurnuvaID);
-                        deleteCommand.ExecuteNonQuery();
-                        Tools.CloseConnection();
-                    }
-                    catch (Exception ex)
-                    {
-                        XtraMessageBox.Show($"Eski maçlar silinirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        XtraMessageBox.Show($"Eski maçlar silinirken hata oluştu: {hataSil}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
 
                 // Create pairings
-                _eslestirmeler = _turnuvaService.EslestirmeleriOlustur(_seciliTurnuvaID);
+                string hataEslestirme = _turnuvaService.EslestirmeleriOlustur(_seciliTurnuvaID, out _eslestirmeler);
+                if (hataEslestirme != null)
+                {
+                    XtraMessageBox.Show($"Eşleştirme oluşturulurken hata oluştu: {hataEslestirme}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-                if (_eslestirmeler.Count == 0)
+                if (_eslestirmeler == null || _eslestirmeler.Count == 0)
                 {
                     XtraMessageBox.Show("Yeterli üye bulunamadı. En az 2 üye gereklidir.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 // Save matches to database
-                bool maclarOlusturuldu = _turnuvaService.MaclariOlustur(_seciliTurnuvaID, _eslestirmeler);
-
-                if (maclarOlusturuldu)
+                string hataMaclar = _turnuvaService.MaclariOlustur(_seciliTurnuvaID, _eslestirmeler);
+                if (hataMaclar == null)
                 {
                     // Visualize bracket
                     BracketGoster();
@@ -171,7 +172,12 @@ namespace GameCenterAI.WinForms
             try
             {
                 // Get all matches from database
-                var maclar = _turnuvaService.MaclariGetir(_seciliTurnuvaID);
+                string hataMaclar = _turnuvaService.MaclariGetir(_seciliTurnuvaID, out List<TurnuvaMaclari> maclar);
+                if (hataMaclar != null)
+                {
+                    XtraMessageBox.Show($"Maçlar yüklenirken hata oluştu: {hataMaclar}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 if (maclar == null || maclar.Count == 0)
                 {
@@ -271,11 +277,11 @@ namespace GameCenterAI.WinForms
         /// </summary>
         private int MacKutusuOlustur(TurnuvaMaclari mac, int yPosition, int matchWidth, int matchHeight, int spacing)
         {
-            Uyeler uye1 = _uyeService.Getir(mac.Uye1ID);
-            Uyeler uye2 = _uyeService.Getir(mac.Uye2ID);
+            string hataUye1 = _uyeService.Getir(mac.Uye1ID, out Uyeler uye1);
+            string hataUye2 = _uyeService.Getir(mac.Uye2ID, out Uyeler uye2);
 
-            string uye1Adi = uye1 != null ? uye1.AdSoyad : $"Üye ID: {mac.Uye1ID}";
-            string uye2Adi = uye2 != null ? uye2.AdSoyad : $"Üye ID: {mac.Uye2ID}";
+            string uye1Adi = (hataUye1 == null && uye1 != null) ? uye1.AdSoyad : $"Üye ID: {mac.Uye1ID}";
+            string uye2Adi = (hataUye2 == null && uye2 != null) ? uye2.AdSoyad : $"Üye ID: {mac.Uye2ID}";
 
             // Create GroupControl for match - Modern design
             GroupControl matchGroup = new GroupControl();
@@ -398,7 +404,12 @@ namespace GameCenterAI.WinForms
                 if (btn != null && btn.Tag != null)
                 {
                     int macID = Convert.ToInt32(btn.Tag);
-                    TurnuvaMaclari mac = _turnuvaService.MacGetir(macID);
+                    string hataMac = _turnuvaService.MacGetir(macID, out TurnuvaMaclari mac);
+                    if (hataMac != null)
+                    {
+                        XtraMessageBox.Show($"Maç getirilirken hata oluştu: {hataMac}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
                     if (mac != null)
                     {
@@ -408,8 +419,8 @@ namespace GameCenterAI.WinForms
                             BracketGoster();
                             
                             // Final maçı sonuçlandırıldıysa turnuvayı tamamla
-                            var guncellenenMac = _turnuvaService.MacGetir(mac.MacID);
-                            if (guncellenenMac != null && guncellenenMac.Tur == "Final" && guncellenenMac.Durum == "Sonuçlandı" && guncellenenMac.KazananID.HasValue)
+                            string hataGuncellenen = _turnuvaService.MacGetir(mac.MacID, out TurnuvaMaclari guncellenenMac);
+                            if (hataGuncellenen == null && guncellenenMac != null && guncellenenMac.Tur == "Final" && guncellenenMac.Durum == "Sonuçlandı" && guncellenenMac.KazananID.HasValue)
                             {
                                 FinalTamamlandiKontrol();
                             }
@@ -430,7 +441,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                var turnuvalar = _turnuvaService.Listele();
+                string hata = _turnuvaService.Listele(out List<Turnuvalar> turnuvalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Turnuvalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 if (_cmbTurnuvalar.SelectedIndex > 0 && _cmbTurnuvalar.SelectedIndex <= turnuvalar.Count)
                 {
                     _seciliTurnuvaID = turnuvalar[_cmbTurnuvalar.SelectedIndex - 1].TurnuvaID;
@@ -455,7 +471,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                var turnuvalar = _turnuvaService.Listele();
+                string hata = _turnuvaService.Listele(out List<Turnuvalar> turnuvalar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Turnuvalar yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlTurnuvalar.DataSource = turnuvalar;
                 _gridViewTurnuvalar.PopulateColumns();
             }
@@ -490,7 +511,17 @@ namespace GameCenterAI.WinForms
             }
 
             int turnuvaID = Convert.ToInt32(_gridViewTurnuvalar.GetFocusedRowCellValue("TurnuvaID"));
-            Turnuvalar turnuva = _turnuvaService.Getir(turnuvaID);
+            string hata = _turnuvaService.Getir(turnuvaID, out Turnuvalar turnuva);
+            if (hata != null)
+            {
+                XtraMessageBox.Show($"Turnuva getirilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (turnuva == null)
+            {
+                XtraMessageBox.Show("Turnuva bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             
             if (turnuva != null)
             {
@@ -521,16 +552,17 @@ namespace GameCenterAI.WinForms
             {
                 try
                 {
-                    bool result = _turnuvaService.Sil(turnuvaID);
-                    if (result)
+                    string hata = _turnuvaService.Sil(turnuvaID);
+                    if (hata != null)
+                    {
+                        XtraMessageBox.Show($"Turnuva silinirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    else
                     {
                         XtraMessageBox.Show("Turnuva silindi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadTurnuvalar();
                         LoadTurnuvalarGrid();
-                    }
-                    else
-                    {
-                        XtraMessageBox.Show("Turnuva silinemedi!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 catch (Exception ex)
@@ -566,7 +598,12 @@ namespace GameCenterAI.WinForms
 
             try
             {
-                var maclar = _turnuvaService.MaclariGetir(_seciliTurnuvaID);
+                string hataMaclar = _turnuvaService.MaclariGetir(_seciliTurnuvaID, out List<TurnuvaMaclari> maclar);
+                if (hataMaclar != null)
+                {
+                    XtraMessageBox.Show($"Maçlar yüklenirken hata oluştu: {hataMaclar}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 
                 // Tüm turları grupla
                 var turler = maclar.GroupBy(m => m.Tur).OrderBy(g => 
@@ -624,8 +661,8 @@ namespace GameCenterAI.WinForms
 
                 if (XtraMessageBox.Show($"{mevcutTur} tamamlandı. Sonraki tura geçmek istiyor musunuz?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    bool result = _turnuvaService.SonrakiTuraGec(_seciliTurnuvaID, mevcutTur);
-                    if (result)
+                    string hata = _turnuvaService.SonrakiTuraGec(_seciliTurnuvaID, mevcutTur);
+                    if (hata == null)
                     {
                         XtraMessageBox.Show("Sonraki tur oluşturuldu!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         BracketGoster();
@@ -645,20 +682,25 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                var finalMaclari = _turnuvaService.MaclariGetirByTur(_seciliTurnuvaID, "Final");
-                if (finalMaclari.Count > 0)
+                string hataFinal = _turnuvaService.MaclariGetirByTur(_seciliTurnuvaID, "Final", out List<TurnuvaMaclari> finalMaclari);
+                if (hataFinal == null && finalMaclari != null && finalMaclari.Count > 0)
                 {
                     var finalMac = finalMaclari[0];
                     if (finalMac.Durum == "Sonuçlandı" && finalMac.KazananID.HasValue)
                     {
                         // Turnuvayı tamamla
-                        int? kazananID = _turnuvaService.TurnuvayiTamamla(_seciliTurnuvaID);
+                        string hataTamamla = _turnuvaService.TurnuvayiTamamla(_seciliTurnuvaID, out int? kazananID);
                         
-                        if (kazananID.HasValue)
+                        if (hataTamamla == null && kazananID.HasValue)
                         {
                             SUyeler uyeService = new SUyeler();
-                            Uyeler kazanan = uyeService.Getir(kazananID.Value);
-                            Turnuvalar turnuva = _turnuvaService.Getir(_seciliTurnuvaID);
+                            string hataKazanan = uyeService.Getir(kazananID.Value, out Uyeler kazanan);
+                            string hataTurnuva = _turnuvaService.Getir(_seciliTurnuvaID, out Turnuvalar turnuva);
+                            if (hataTurnuva != null || turnuva == null)
+                            {
+                                XtraMessageBox.Show($"Turnuva bilgileri alınırken hata oluştu: {hataTurnuva ?? "Turnuva bulunamadı"}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
                             
                             string mesaj = $"🏆 TEBRİKLER! 🏆\n\n";
                             mesaj += $"Turnuva: {turnuva.TurnuvaAdi}\n";

@@ -17,10 +17,13 @@ namespace GameCenterAI.Service
         /// Creates a new order.
         /// </summary>
         /// <param name="siparis">The order entity to create.</param>
-        /// <returns>The created order ID.</returns>
-        public int Olustur(Siparisler siparis)
+        /// <param name="siparisId">The created order ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Olustur(Siparisler siparis, out int siparisId)
         {
-            int siparisID = 0;
+            string hata = null;
+            siparisId = 0;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -37,35 +40,42 @@ namespace GameCenterAI.Service
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    siparisID = Convert.ToInt32(result);
+                    siparisId = Convert.ToInt32(result);
+                }
+                else
+                {
+                    hata = "Sipariş oluşturma işlemi başarısız oldu.";
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş oluşturma işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return siparisID;
+            return hata;
         }
 
         /// <summary>
         /// Gets orders by transaction ID.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>A list of orders.</returns>
-        public List<Siparisler> GetirByHareketID(int hareketID)
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="siparisler">The list of orders.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetirByHareketID(int hareketId, out List<Siparisler> siparisler)
         {
-            List<Siparisler> siparisler = new List<Siparisler>();
+            string hata = null;
+            siparisler = new List<Siparisler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT SiparisID, HareketID, SiparisTarihi, ToplamTutar, Durum FROM Siparisler WHERE HareketID = @HareketID AND Durum = 'Aktif'";
 
-            command.Parameters.AddWithValue("@HareketID", hareketID);
+            command.Parameters.AddWithValue("@HareketID", hareketId);
 
             try
             {
@@ -89,23 +99,26 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return siparisler;
+            return hata;
         }
 
         /// <summary>
         /// Gets all orders.
         /// </summary>
-        /// <returns>A list of all orders.</returns>
-        public List<Siparisler> Listele()
+        /// <param name="siparisler">The list of all orders.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Siparisler> siparisler)
         {
-            List<Siparisler> siparisler = new List<Siparisler>();
+            string hata = null;
+            siparisler = new List<Siparisler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -133,30 +146,33 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return siparisler;
+            return hata;
         }
 
         /// <summary>
         /// Gets order details by order ID.
         /// </summary>
-        /// <param name="siparisID">The order ID.</param>
-        /// <returns>A list of order details.</returns>
-        public List<SiparisDetaylar> GetDetaylar(int siparisID)
+        /// <param name="siparisId">The order ID.</param>
+        /// <param name="detaylar">The list of order details.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetDetaylar(int siparisId, out List<SiparisDetaylar> detaylar)
         {
-            List<SiparisDetaylar> detaylar = new List<SiparisDetaylar>();
+            string hata = null;
+            detaylar = new List<SiparisDetaylar>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT SiparisDetayID, SiparisID, UrunID, Adet, BirimFiyat, ToplamFiyat FROM SiparisDetaylar WHERE SiparisID = @SiparisID";
 
-            command.Parameters.AddWithValue("@SiparisID", siparisID);
+            command.Parameters.AddWithValue("@SiparisID", siparisId);
 
             try
             {
@@ -181,24 +197,25 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş detayları getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return detaylar;
+            return hata;
         }
 
         /// <summary>
         /// Adds an order detail.
         /// </summary>
         /// <param name="detay">The order detail entity.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool DetayEkle(SiparisDetaylar detay)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string DetayEkle(SiparisDetaylar detay)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -214,19 +231,21 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Sipariş detayı ekleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Sipariş detayı ekleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
     }
 }
-

@@ -16,10 +16,13 @@ namespace GameCenterAI.Service
         /// <summary>
         /// Gets all tariffs.
         /// </summary>
-        /// <returns>A list of all tariffs.</returns>
-        public List<Tarifeler> Listele()
+        /// <param name="tarifeler">The list of all tariffs.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Listele(out List<Tarifeler> tarifeler)
         {
-            List<Tarifeler> tarifeler = new List<Tarifeler>();
+            string hata = null;
+            tarifeler = new List<Tarifeler>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -47,30 +50,33 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Tarife listeleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return tarifeler;
+            return hata;
         }
 
         /// <summary>
         /// Gets a tariff by ID.
         /// </summary>
-        /// <param name="tarifeID">The tariff ID.</param>
-        /// <returns>The tariff entity.</returns>
-        public Tarifeler Getir(int tarifeID)
+        /// <param name="tarifeId">The tariff ID.</param>
+        /// <param name="tarife">The tariff entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int tarifeId, out Tarifeler tarife)
         {
-            Tarifeler tarife = null;
+            string hata = null;
+            tarife = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT TarifeID, TarifeAdi, SaatlikUcret, SureSiniri, Durum FROM Tarifeler WHERE TarifeID = @TarifeID";
 
-            command.Parameters.AddWithValue("@TarifeID", tarifeID);
+            command.Parameters.AddWithValue("@TarifeID", tarifeId);
 
             try
             {
@@ -93,15 +99,14 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Tarife getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return tarife;
+            return hata;
         }
     }
 }
-

@@ -16,10 +16,13 @@ namespace GameCenterAI.Service
         /// <summary>
         /// Gets all tables from the database.
         /// </summary>
-        /// <returns>A list of all tables.</returns>
-        public List<Masalar> GetAllMasalar()
+        /// <param name="masalar">The list of all tables.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string GetAllMasalar(out List<Masalar> masalar)
         {
-            List<Masalar> masalar = new List<Masalar>();
+            string hata = null;
+            masalar = new List<Masalar>();
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -46,59 +49,64 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Masalar yüklenirken hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return masalar;
+            return hata;
         }
 
         /// <summary>
         /// Updates the status of a table.
         /// </summary>
-        /// <param name="masaID">The table ID.</param>
+        /// <param name="masaId">The table ID.</param>
         /// <param name="durum">The new status.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool DurumGuncelle(int masaID, string durum)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string DurumGuncelle(int masaId, string durum)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "UPDATE Masalar SET Durum = @Durum WHERE MasaID = @MasaID";
 
-            command.Parameters.AddWithValue("@MasaID", masaID);
+            command.Parameters.AddWithValue("@MasaID", masaId);
             command.Parameters.AddWithValue("@Durum", durum ?? string.Empty);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Masa durumu güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Masa durumu güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Adds a new table to the database.
         /// </summary>
         /// <param name="masa">The table entity to add.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Ekle(Masalar masa)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Ekle(Masalar masa)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -112,28 +120,32 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Masa ekleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Masa ekleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Updates an existing table.
         /// </summary>
         /// <param name="masa">The table entity to update.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Guncelle(Masalar masa)
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Guncelle(Masalar masa)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
@@ -148,67 +160,77 @@ namespace GameCenterAI.Service
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Masa güncelleme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Masa güncelleme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Deletes a table from the database.
         /// </summary>
-        /// <param name="masaID">The table ID to delete.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public bool Sil(int masaID)
+        /// <param name="masaId">The table ID to delete.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Sil(int masaId)
         {
-            bool result = false;
+            string hata = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "DELETE FROM Masalar WHERE MasaID = @MasaID";
 
-            command.Parameters.AddWithValue("@MasaID", masaID);
+            command.Parameters.AddWithValue("@MasaID", masaId);
 
             try
             {
                 Tools.OpenConnection();
                 int affectedRows = command.ExecuteNonQuery();
-                result = affectedRows > 0;
+                if (affectedRows <= 0)
+                {
+                    hata = "Masa silme işlemi başarısız oldu.";
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Masa silme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return result;
+            return hata;
         }
 
         /// <summary>
         /// Gets a table by ID.
         /// </summary>
-        /// <param name="masaID">The table ID.</param>
-        /// <returns>The table entity.</returns>
-        public Masalar Getir(int masaID)
+        /// <param name="masaId">The table ID.</param>
+        /// <param name="masa">The table entity.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        public string Getir(int masaId, out Masalar masa)
         {
-            Masalar masa = null;
+            string hata = null;
+            masa = null;
+            
             SqlCommand command = new SqlCommand();
             command.Connection = Tools.Connection;
             command.CommandType = CommandType.Text;
             command.CommandText = "SELECT MasaID, MasaAdi, SaatlikUcret, Durum FROM Masalar WHERE MasaID = @MasaID";
 
-            command.Parameters.AddWithValue("@MasaID", masaID);
+            command.Parameters.AddWithValue("@MasaID", masaId);
 
             try
             {
@@ -230,15 +252,14 @@ namespace GameCenterAI.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Masa getirme işlemi sırasında hata oluştu: " + ex.Message);
+                hata = ex.Message;
             }
             finally
             {
                 Tools.CloseConnection();
             }
 
-            return masa;
+            return hata;
         }
     }
 }
-

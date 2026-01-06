@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -148,9 +149,9 @@ namespace GameCenterAI.WinForms
                 Uyeler uye = frmUyeSec.SecilenUye;
                 uye.FaceEncoding = faceImage;
                 
-                bool result = _uyeService.Guncelle(uye);
+                string hata = _uyeService.Guncelle(uye);
 
-                if (result)
+                if (hata == null)
                 {
                     XtraMessageBox.Show("Yüz başarıyla kaydedildi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _seciliUyeID = uye.UyeID;
@@ -188,16 +189,22 @@ namespace GameCenterAI.WinForms
                 }
 
                 // Get all users with face encoding
-                var uyeler = _uyeService.Listele();
+                string hataListe = _uyeService.Listele(out List<Uyeler> uyeler);
+                if (hataListe != null)
+                {
+                    XtraMessageBox.Show($"Üyeler yüklenirken hata oluştu: {hataListe}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
                 int bulunanUyeID = -1;
 
                 foreach (var uye in uyeler)
                 {
                     if (uye.FaceEncoding != null && uye.FaceEncoding.Length > 0)
                     {
-                        bool eslesme = _aiService.CompareFaces(uye.FaceEncoding, currentFace);
+                        string hataKarsilastirma = _aiService.CompareFaces(uye.FaceEncoding, currentFace, out bool eslesme);
                         
-                        if (eslesme)
+                        if (hataKarsilastirma == null && eslesme)
                         {
                             bulunanUyeID = uye.UyeID;
                             break;
@@ -207,7 +214,12 @@ namespace GameCenterAI.WinForms
 
                 if (bulunanUyeID > 0)
                 {
-                    Uyeler uye = _uyeService.Getir(bulunanUyeID);
+                    string hataGetir = _uyeService.Getir(bulunanUyeID, out Uyeler uye);
+                    if (hataGetir != null)
+                    {
+                        XtraMessageBox.Show($"Üye getirilirken hata oluştu: {hataGetir}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                     XtraMessageBox.Show($"Giriş başarılı! Hoş geldiniz {uye.AdSoyad}", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
                     this.Close();

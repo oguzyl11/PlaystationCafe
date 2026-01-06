@@ -43,7 +43,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                _tumUrunler = _urunService.Listele();
+                string hata = _urunService.Listele(out _tumUrunler);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Ürünler yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlUrunler.DataSource = _tumUrunler;
                 _gridViewUrunler.PopulateColumns();
             }
@@ -104,7 +109,12 @@ namespace GameCenterAI.WinForms
             if (_gridViewUrunler.GetSelectedRows().Length > 0)
             {
                 int urunID = Convert.ToInt32(_gridViewUrunler.GetRowCellValue(_gridViewUrunler.GetSelectedRows()[0], "UrunID"));
-                Urunler urun = _urunService.Getir(urunID);
+                string hata = _urunService.Getir(urunID, out Urunler urun);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Ürün getirilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 
                 if (urun != null)
                 {

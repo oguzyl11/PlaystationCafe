@@ -112,9 +112,9 @@ namespace GameCenterAI.WinForms
                         Durum = true
                     };
 
-                    bool result = _uyeService.Ekle(yeniUye);
+                    string hata = _uyeService.Ekle(yeniUye);
 
-                    if (result)
+                    if (hata == null)
                     {
                         XtraMessageBox.Show("Üye kaydı başarıyla oluşturuldu!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }

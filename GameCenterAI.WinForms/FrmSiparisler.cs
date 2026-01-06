@@ -38,7 +38,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                List<Siparisler> siparisler = _siparisService.Listele();
+                string hata = _siparisService.Listele(out List<Siparisler> siparisler);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Siparişler yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlSiparisler.DataSource = siparisler;
             }
             catch (Exception ex)
@@ -67,7 +72,12 @@ namespace GameCenterAI.WinForms
             {
                 int siparisID = Convert.ToInt32(_gridViewSiparisler.GetRowCellValue(_gridViewSiparisler.GetSelectedRows()[0], "SiparisID"));
                 // Sipariş detayları gösterilecek
-                List<SiparisDetaylar> detaylar = _siparisService.GetDetaylar(siparisID);
+                string hata = _siparisService.GetDetaylar(siparisID, out List<SiparisDetaylar> detaylar);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Sipariş detayları yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 string detayBilgi = $"Sipariş ID: {siparisID}\n\nDetaylar:\n";
                 foreach (var detay in detaylar)
                 {

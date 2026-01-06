@@ -89,18 +89,18 @@ namespace GameCenterAI.WinForms
                     Durum = _cmbDurum.Text
                 };
 
-                bool result = false;
+                string hata = null;
                 if (_duzenlemeModu && _duzenlenecekTurnuva != null)
                 {
                     turnuva.TurnuvaID = _duzenlenecekTurnuva.TurnuvaID;
-                    result = _turnuvaService.Guncelle(turnuva);
+                    hata = _turnuvaService.Guncelle(turnuva);
                 }
                 else
                 {
-                    result = _turnuvaService.Olustur(turnuva);
+                    hata = _turnuvaService.Olustur(turnuva);
                 }
 
-                if (result)
+                if (hata == null)
                 {
                     XtraMessageBox.Show(_duzenlemeModu ? "Turnuva güncellendi!" : "Turnuva eklendi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;

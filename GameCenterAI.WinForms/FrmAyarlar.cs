@@ -86,7 +86,12 @@ namespace GameCenterAI.WinForms
         {
             try
             {
-                List<Tarifeler> tarifeler = _tarifeService.Listele();
+                string hata = _tarifeService.Listele(out List<Tarifeler> tarifeler);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Tarifeler yüklenirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 _gridControlTarifeler.DataSource = tarifeler;
                 _gridViewTarifeler.PopulateColumns();
             }

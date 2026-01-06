@@ -12,35 +12,38 @@ namespace GameCenterAI.Interface
         /// Creates a new order.
         /// </summary>
         /// <param name="siparis">The order entity to create.</param>
-        /// <returns>The created order ID.</returns>
-        int Olustur(Siparisler siparis);
+        /// <param name="siparisId">The created order ID.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Olustur(Siparisler siparis, out int siparisId);
 
         /// <summary>
         /// Gets orders by transaction ID.
         /// </summary>
-        /// <param name="hareketID">The transaction ID.</param>
-        /// <returns>A list of orders.</returns>
-        List<Siparisler> GetirByHareketID(int hareketID);
+        /// <param name="hareketId">The transaction ID.</param>
+        /// <param name="siparisler">The list of orders.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string GetirByHareketID(int hareketId, out List<Siparisler> siparisler);
 
         /// <summary>
         /// Gets all orders.
         /// </summary>
-        /// <returns>A list of all orders.</returns>
-        List<Siparisler> Listele();
+        /// <param name="siparisler">The list of all orders.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string Listele(out List<Siparisler> siparisler);
 
         /// <summary>
         /// Gets order details by order ID.
         /// </summary>
-        /// <param name="siparisID">The order ID.</param>
-        /// <returns>A list of order details.</returns>
-        List<SiparisDetaylar> GetDetaylar(int siparisID);
+        /// <param name="siparisId">The order ID.</param>
+        /// <param name="detaylar">The list of order details.</param>
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string GetDetaylar(int siparisId, out List<SiparisDetaylar> detaylar);
 
         /// <summary>
         /// Adds an order detail.
         /// </summary>
         /// <param name="detay">The order detail entity.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        bool DetayEkle(SiparisDetaylar detay);
+        /// <returns>Error message if operation fails, null otherwise.</returns>
+        string DetayEkle(SiparisDetaylar detay);
     }
 }
-

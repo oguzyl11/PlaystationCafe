@@ -41,11 +41,11 @@ namespace GameCenterAI.WinForms
         {
             if (_mac != null)
             {
-                Uyeler uye1 = _uyeService.Getir(_mac.Uye1ID);
-                Uyeler uye2 = _uyeService.Getir(_mac.Uye2ID);
+                string hataUye1 = _uyeService.Getir(_mac.Uye1ID, out Uyeler uye1);
+                string hataUye2 = _uyeService.Getir(_mac.Uye2ID, out Uyeler uye2);
 
-                _lblUye1.Text = uye1 != null ? uye1.AdSoyad : $"Üye ID: {_mac.Uye1ID}";
-                _lblUye2.Text = uye2 != null ? uye2.AdSoyad : $"Üye ID: {_mac.Uye2ID}";
+                _lblUye1.Text = (hataUye1 == null && uye1 != null) ? uye1.AdSoyad : $"Üye ID: {_mac.Uye1ID}";
+                _lblUye2.Text = (hataUye2 == null && uye2 != null) ? uye2.AdSoyad : $"Üye ID: {_mac.Uye2ID}";
 
                 if (_mac.Skor1.HasValue)
                 {
@@ -80,18 +80,16 @@ namespace GameCenterAI.WinForms
                 _mac.MacTarihi = DateTime.Now;
                 _mac.KazananID = skor1 > skor2 ? _mac.Uye1ID : _mac.Uye2ID;
 
-                bool result = _turnuvaService.MacSonucuKaydet(_mac);
+                string hata = _turnuvaService.MacSonucuKaydet(_mac);
+                if (hata != null)
+                {
+                    XtraMessageBox.Show($"Maç sonucu kaydedilirken hata oluştu: {hata}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-                if (result)
-                {
-                    XtraMessageBox.Show("Maç sonucu kaydedildi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                else
-                {
-                    XtraMessageBox.Show("Maç sonucu kaydedilemedi!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                XtraMessageBox.Show("Maç sonucu kaydedildi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {

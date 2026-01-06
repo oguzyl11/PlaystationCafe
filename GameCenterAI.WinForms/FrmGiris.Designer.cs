@@ -33,10 +33,13 @@ namespace GameCenterAI.WinForms
             this._txtSifre = new DevExpress.XtraEditors.TextEdit();
             this._btnGiris = new DevExpress.XtraEditors.SimpleButton();
             this._btnKayit = new DevExpress.XtraEditors.SimpleButton();
+            this._pictureBoxKamera = new System.Windows.Forms.PictureBox();
+            this._lblYuzTanimaDurum = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this._grpGiris)).BeginInit();
             this._grpGiris.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._txtKullaniciAdi.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._txtSifre.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._pictureBoxKamera)).BeginInit();
             this.SuspendLayout();
             // 
             // _grpGiris
@@ -56,6 +59,26 @@ namespace GameCenterAI.WinForms
             this._grpGiris.AppearanceCaption.Options.UseForeColor = true;
             this._grpGiris.AppearanceCaption.Options.UseTextOptions = true;
             this._grpGiris.AppearanceCaption.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            // 
+            // _pictureBoxKamera
+            // 
+            this._pictureBoxKamera.Location = new System.Drawing.Point(500, 50);
+            this._pictureBoxKamera.Name = "_pictureBoxKamera";
+            this._pictureBoxKamera.Size = new System.Drawing.Size(200, 200);
+            this._pictureBoxKamera.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this._pictureBoxKamera.TabIndex = 1;
+            this._pictureBoxKamera.TabStop = false;
+            this._pictureBoxKamera.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            // 
+            // _lblYuzTanimaDurum
+            // 
+            this._lblYuzTanimaDurum.Location = new System.Drawing.Point(500, 260);
+            this._lblYuzTanimaDurum.Name = "_lblYuzTanimaDurum";
+            this._lblYuzTanimaDurum.Size = new System.Drawing.Size(200, 13);
+            this._lblYuzTanimaDurum.TabIndex = 2;
+            this._lblYuzTanimaDurum.Text = "Yüz tanıma başlatılıyor...";
+            this._lblYuzTanimaDurum.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this._lblYuzTanimaDurum.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
             // 
             // _txtKullaniciAdi
             // 
@@ -122,7 +145,9 @@ namespace GameCenterAI.WinForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(500, 400);
+            this.ClientSize = new System.Drawing.Size(750, 400);
+            this.Controls.Add(this._lblYuzTanimaDurum);
+            this.Controls.Add(this._pictureBoxKamera);
             this.Controls.Add(this._grpGiris);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -136,10 +161,14 @@ namespace GameCenterAI.WinForms
             this._grpGiris.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this._txtKullaniciAdi.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._txtSifre.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._pictureBoxKamera)).EndInit();
             this.ResumeLayout(false);
         }
 
         #endregion
+
+        private System.Windows.Forms.PictureBox _pictureBoxKamera;
+        private DevExpress.XtraEditors.LabelControl _lblYuzTanimaDurum;
     }
 }
 
